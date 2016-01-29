@@ -1,16 +1,50 @@
 # googleAuthR - Google API Client Library for R
 [![Travis-CI Build Status](https://travis-ci.org/MarkEdmondson1234/googleAuthR.svg?branch=master)](https://travis-ci.org/MarkEdmondson1234/googleAuthR)
+[![Analytics](https://ga-beacon.appspot.com/UA-73050356-1/googleAuthR/readme)](https://github.com/MarkEdmondson1234/googleAuthR)
 
 Build libraries for Google APIs with OAuth2 for both local and Shiny app use.
 
-Here is a list of [available Google APIs.](https://developers.google.com/apis-explorer/#p/)
+# Table of Contents
+
+* [Example libraries](https://github.com/MarkEdmondson1234/googleAuthR#r-google-api-libraries-using-googleauthr)
+* [Thanks](https://github.com/MarkEdmondson1234/googleAuthR#thanks-to)
+* [Installation](https://github.com/MarkEdmondson1234/googleAuthR#install)
+* [Overview](https://github.com/MarkEdmondson1234/googleAuthR#overview)
+* [Google API Console Setup](https://github.com/MarkEdmondson1234/googleAuthR#google-api-setup)
+* [Building your own Google API functions](https://github.com/MarkEdmondson1234/googleAuthR#generating-your-function)
+* [Batching API Calls](https://github.com/MarkEdmondson1234/googleAuthR#batching-api-requests)
+* [Service Account Authentication with JSON](https://github.com/MarkEdmondson1234/googleAuthR#authentication-with-a-json-file-via-service-accounts)
+* [Authentication with Shiny](https://github.com/MarkEdmondson1234/googleAuthR#using-with-shiny)
+* [Complete Example making a goo.gl R library](https://github.com/MarkEdmondson1234/googleAuthR#example-with-googl)
+
+
+## R Google API libraries using googleAuthR
+
+Here is a list of [available Google APIs.](https://developers.google.com/apis-explorer/#p/) this library can be used with.
+
+These libraries are all compatible as they use `googleAuthR` for authentication backend e.g. can use just one OAuth2 login flow and are Shiny compatible. 
+
+* [searchConsoleR](https://github.com/MarkEdmondson1234/searchConsoleR) - Search Console API
+* [bigQueryR](https://github.com/MarkEdmondson1234/bigQueryR) - BigQuery API
+* [googleAnalyticsR](https://github.com/MarkEdmondson1234/googleAnalyticsR_public) - Google Analytics API
+
+Feel free to add your own via email or a pull request if you have used googleAuthR to build something cool. 
+
+## Thanks to:
+
+* Jenny Bryan and her work on the [googlesheets](https://github.com/jennybc/googlesheets) package that this work derives from.
+* Hadley Wickham for [httr's OAuth2](https://github.com/hadley/httr) excellence
+* RStudio team for [Shiny](http://shiny.rstudio.com/)
+* [Johann de Boer](https://github.com/jdeboer) for some code contributions.
 
 ## Install
 
-GoogleAuthR version 0.1.0 is now available on CRAN
+GoogleAuthR version 0.1.2 is now available on CRAN
 ```
 install.packages("googleAuthR")
 ```
+
+Check out [News](NEWS.md) to see the features of the development version.
 
 If you want to use the development version on Github, install via:
 ```
@@ -29,6 +63,8 @@ library(googleAuthR)
 
 This guide is available at: `vignette("googleAuthR")`
 
+This library allows you to authenticate easily via local use in an OAuth2 flow; within a Shiny app; or via service accounts. 
+
 The main two functions are `gar_auth()` and `gar_api_generator()`.
 
 ### `gar_auth`
@@ -43,11 +79,9 @@ Use it within your own function definitions, to query the Google API you want.
 
 `googleAuthR` has a default project setup with APIs activated for several APIs, but it is recommended you use your own Client IDs as the login screen will be big and scary for users with so many APIs to approve.  
 
-It is preferred to configure your functions to only use the scopes they need.
+It is preferred to configure your functions to only use the scopes they need.  Scopes you need will be specified in the Google API documentation. 
 
 Set scopes via the option `googleAuthR.scopes.selected`.
-
-
 
 The below example sets scopes for Search Console, Google Analytics and Tag Manager:
 ```
@@ -56,10 +90,8 @@ options("googleAuthR.scopes.selected" = c("https://www.googleapis.com/auth/webma
                                           "https://www.googleapis.com/auth/tagmanager.readonly"))
 ```
 
-A non-definitive scope list to choose from will be attempted to be maintained via `getOption("googleAuthR.scopes")`
-
 ### Set up steps
-1. Set up your project in the [Google API Console](https://code.google.com/apis/console) to use the search console v3 API.
+1. Set up your project in the [Google API Console](https://code.google.com/apis/console) to use the Google API you want.
 
 #### For local use
 2. Click 'Create a new Client ID', and choose "Installed Application".
@@ -71,12 +103,13 @@ A non-definitive scope list to choose from will be attempted to be maintained vi
 #### For Shiny use
 2. Click 'Create a new Client ID', and choose "Web Application".
 3. Note your Client ID and secret.
-4. Add the URL of where your Shiny app will run, as well as your local host for testing including a port number.  e.g. https://mark.shinyapps.io/searchConsoleRDemo/ and http://127.0.0.1:4624
-5. In your Shiny script modify these options:
+4. Add the URL of where your Shiny app will run, with no port number. e.g. https://mark.shinyapps.io/searchConsoleRDemo/
+5. And/Or also put in localhost or 127.0.0.1 with a port number for local testing. Remember the port number you use as you will need it later to launch the app e.g. http://127.0.0.1:1221
+6. In your Shiny script modify these options:
   + `options("googleAuthR.webapp.client_id" = "YOUR_CLIENT_ID")`
   + `options("googleAuthR.webapp.client_secret" = "YOUR_CLIENT_SECRET")`
-6. Run the app locally specifying the port number you used e.g. `shiny::runApp(port=4624)`
-7. Or deploy to your Shiny Server that deploys to web port (80 or 443).
+7. Run the app locally specifying the port number you used e.g. `shiny::runApp(port=1221)`
+8. Or deploy to your Shiny Server that deploys to web port (80 or 443).
 
 #### Activate API
 
@@ -110,7 +143,7 @@ Authentication token is cached in a hidden file called `.httr-oauth` in the work
 
 If for some reason you need authentication without access to a browser (for example when using Shiny Server), then you can authenticate locally and upload the `.httr-oauth` file to the folder of your script.
 
-### Authentication with Shiny
+## Authentication with Shiny
 
 If you want to create a Shiny app just using your data, upload the app with your own `.httr-oauth`.
 
@@ -138,7 +171,7 @@ shinyServer(function(input, output, session){
    ## Make a loginButton to display using loginOutput
    output$loginButton <- renderLogin(session, access_token())
 
-   your_api_function <- eventReactive(input$submit, {
+   api_output <- eventReactive(input$submit, {
      ## with_shiny() wraps your your_api_function to provide the arguments
      ## requires you to pass "shiny_access_token"
      short_url <- with_shiny(f = your_api_function, 
@@ -151,7 +184,7 @@ shinyServer(function(input, output, session){
    
    output$short_url <- renderText({
 
-    short_url_output()
+    api_output()
      
     })
 
@@ -169,6 +202,84 @@ shinyUI(
    textOutput("short_url")
    ))
 
+```
+
+## Authentication with a JSON file via Service Accounts
+
+You can also authenticate single users via a server side JSON file rather than going through the online OAuth2 flow.  The end user could supply this JSON file, or you can upload your own JSON file to your applications. 
+
+This involves downloading a secret JSON key with the authentication details.  More details are available from Google here: Using OAuth2.0 for Server to Server Applications[https://developers.google.com/identity/protocols/OAuth2ServiceAccount]
+
+To use, go to your Project in the [Google Developement Console](https://console.developers.google.com/apis/credentials/serviceaccountkey) and select JSON Key type.  Save the JSON file to your computer and supply the file location to the function
+`gar_auth_service()`
+  
+Navigate to the JSON file from the Google Developer Console via: 
+
+Credentials > New credentials > Service account Key > Select service account > Key type = JSON
+      
+An example using a service account JSON file for authentication is shown below:
+
+```
+library(googleAuthR)
+service_token <- gar_auth_service(json_file="~/location/of/the/json/secret.json")
+
+analytics_url <- function(shortUrl, 
+                          timespan = c("allTime", "month", "week","day","twoHours")){
+  
+  timespan <- match.arg(timespan)
+  
+  f <- gar_api_generator("https://www.googleapis.com/urlshortener/v1/url",
+                         "GET",
+                         pars_args = list(shortUrl = "shortUrl",
+                                          projection = "FULL"),
+                         data_parse_function = function(x) { 
+                           a <- x$analytics 
+                           return(a[timespan][[1]])
+                         })
+  
+  f(pars_arguments = list(shortUrl = shortUrl))
+}
+
+analytics_url("https://goo.gl/2FcFVQbk")
+
+```
+
+## Revoking Authentication
+
+For local use, delete the `.httr-oauth` file.
+
+For service level accounts delete the JSON file.
+
+For a Shiny app, a cookie is left by Google that will mean a faster login next time a user uses the app with no Authorization screen that they get the first time through.  To force this every time, activate the parameter `revoke=TRUE` within the `renderLogin` function.  Example below:
+
+```
+ shinyServer(function(input, output, session)){
+   
+   ## Get auth code from return URL
+   access_token  <- reactiveAccessToken(session)
+ 
+   ## Make a loginButton to display using loginOutput
+   ## revoke=TRUE means upon logout a user will need to reauthenticate
+   output$loginButton <- renderLogin(session, access_token(), revoke=TRUE)
+   
+   ## Needed if revoke=TRUE above
+   revokeEventObserver(access_token())
+   
+   ...
+
+  }
+ 
+ ## in ui.R
+ library(shiny)
+ library(googleAuthR)
+ 
+ shinyUI(
+   fluidPage(
+     loginOutput("loginButton"),
+     ....
+     )
+     ))
+ } 
 ```
 
 ## Generating your function
@@ -266,6 +377,93 @@ Example below of the differences between having a data parsing function and not:
 ```
 The response is turned from JSON to a dataframe if possible, via `jsonlite::fromJSON`
 
+### Batching API requests
+
+If you are doing many API calls, you can speed this up a lot by using the batch option.
+
+This takes the API functions you have created and wraps them in the `gar_batch` function to request them all in one POST call.  You then recieve the responses in a list.
+
+Note that this does not count as one call for API limits purposes, it just speeds up the processing.
+
+The example below queries from two different APIs and returns them in a list: IT lists websites in your Google Search Console, and shows your goo.gl link history.
+
+```
+## from search console API
+list_websites <- function() {
+  
+  l <- gar_api_generator("https://www.googleapis.com/webmasters/v3/sites",
+                                      "GET",
+                                      data_parse_function = function(x) x$siteEntry)
+  l()
+}
+
+## from goo.gl API
+user_history <- function(){
+  f <- gar_api_generator("https://www.googleapis.com/urlshortener/v1/url/history",
+                         "GET",
+                         data_parse_function = function(x) x$items)
+  
+  f()
+}
+googleAuthR::gar_auth(new_user=T)
+
+ggg <- gar_batch(list(list_websites(), user_history()))
+```
+
+#### Walking through batch requests
+
+A common batch task is to walk through the same API call, modifying only one parameter.  An example includes walking through Google Analytics API calls by date to avoid sampling.
+
+A function to enable this is implemented at `gar_batch_walk`, with an example below:
+
+```
+walkData <- function(ga, ga_pars, start, end){
+  dates <- as.character(
+    seq(as.Date(start, format="%Y-%m-%d"),
+        as.Date(end, format="%Y-%m-%d"),
+        by=1))
+
+  ga_pars$samplingLevel <- "HIGHER_PRECISION"
+
+  anyBatchSampled <- FALSE
+  samplePercent   <- 0
+  
+  
+  ## this is applied to each batch to keep tally of meta data
+  bf <- function(batch_data){
+    lapply(batch_data, function(the_data) {
+      if(attr(the_data, 'containsSampledData')) anyBatchSampled <<- TRUE
+      samplePercent <<- samplePercent + attr(the_data, "samplePercent")
+    })
+    batch_data
+  }
+
+  ## the walk through batch function. 
+  ## In this case both start-date and end-date are set to the date iteration
+  ## if the output is parsed as a dataframe, it also includes a rbind function
+  ## otherwise, it will return a list of lists
+  walked_data <- googleAuthR::gar_batch_walk(ga,
+                                             dates,
+                                             gar_pars = ga_pars,
+                                             pars_walk = c("start-date", "end-date"),
+                                             batch_function = bf,
+                                             data_frame_output = TRUE)
+
+  message("Walked through all dates. Total Results: [", NROW(walked_data), "]")
+  attr(walked_data, "dateRange") <- list(startDate = start, endDate = end)
+  attr(walked_data, "totalResults") <- NROW(walked_data)
+  attr(walked_data, "samplingLevel") <- "HIGHER_PRECISION, WALKED"
+  attr(walked_data, "containsSampledData") <- anyBatchSampled
+  attr(walked_data, "samplePercent") <- samplePercent / length(dates)
+
+  walked_data
+
+}
+
+```
+
+
+
 ### Putting it together
 
 Below is an example for a link shortner API call to goo.gl:
@@ -307,6 +505,7 @@ gar_auth()
 shorten_url("http://www.google.com")
 
 ```
+
 
 ### Using with Shiny
 

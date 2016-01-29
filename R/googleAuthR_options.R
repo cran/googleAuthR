@@ -8,6 +8,7 @@
     googleAuthR.webapp.client_id = "201908948134-cjjs89cffh3k429vi7943ftpk3jg36ed.apps.googleusercontent.com",
     googleAuthR.webapp.client_secret = "mE7rHl0-iNtzyI1MQia-mg1o",
     googleAuthR.webapp.port = 1221,
+    googleAuthR.jsonlite.simplifyVector = TRUE,
     googleAuthR.scopes = c("https://www.googleapis.com/auth/webmasters",
                            "https://www.googleapis.com/auth/analytics",
                            "https://www.googleapis.com/auth/analytics.readonly",
@@ -32,18 +33,7 @@
     googleAuthR.ok_content_types=c("application/json; charset=UTF-8", ("text/html; charset=UTF-8")),
     googleAuthR.securitycode = 
       paste0(sample(c(1:9, LETTERS, letters), 20, replace = T), collapse=''),
-    googleAuthR.valid.categories = c('authPermissions', 
-                                     'manyToOneRedirect',
-                                     'notFollowed',
-                                     'notFound',
-                                     'other',
-                                     'roboted',
-                                     'serverError',
-                                     'soft404'),
-    
-    googleAuthR.valid.platforms = c('mobile',
-                                    'smartphoneOnly',
-                                    'web')
+    googleAuthR.tryAttempts = 5
   )
   toset <- !(names(op.googleAuthR) %in% names(op))
   if(any(toset)) options(op.googleAuthR[toset])

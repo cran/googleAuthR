@@ -1,3 +1,56 @@
+#' split a vector on an element
+#' 
+#' Why doesn't this exist?
+#' @param vector a vector
+#' @param index where to split the vector
+#' @param remove_splits to return with or without the index points
+#' 
+#' @return a list of vectors split not including split point
+#' @keywords internal
+split_vector <- function(vector, index, remove_splits=TRUE){
+  
+  l <- list()
+  for(i in 2:length(index)){
+    if(is.na(index[i])){
+      warning("No index found")
+      return(c("{", '"error":"no index"', "}"))
+    }
+    s <- vector[index[i-1]:index[i]] 
+    
+    if(remove_splits){
+      s <- s[-1]
+      s <- s[-length(s)]
+    }
+    
+    # remove leading or trailing empty strings
+    if(s[1] == "") s <- s[-1]
+    if(s[length(s)] == "") s <- s[-length(s)]
+    
+    if(exists("l")){
+      l <- c(l, list(s))
+    } else {
+      l <- list(s)
+    }
+  }
+  l
+}
+
+
+#' A helper function that tests whether an object is either NULL _or_
+#' a list of NULLs
+#'
+#' @keywords internal
+is.NullOb <- function(x) is.null(x) | all(sapply(x, is.null))
+
+#' Recursively step down into list, removing all such objects
+#'
+#' @keywords internal
+rmNullObs <- function(x) {
+  x <- Filter(Negate(is.NullOb), x)
+  lapply(x, function(x) if (is.list(x)) rmNullObs(x) else x)
+}
+
+
 #' Substitute in a (nested) list
 #' 
 #' @param template A template named list
@@ -7,6 +60,10 @@
 #' @keywords internal
 #' If replace_me has list names not in template, the value stays the same.
 substitute.list <- function(template, replace_me){
+  
+  ## remove possible NULL entries
+  template <- rmNullObs(template)
+  replace_me <- rmNullObs(replace_me)
 
   postwalk(template, function(x) replace.kv(x,replace_me))
   
@@ -72,6 +129,18 @@ is_shiny <- function(shiny_session){
 is.error <- function(test_me){
   inherits(test_me, "try-error")
 }
+
+#' Get the error message
+#'
+#' @param test_me an object that has failed is.error
+#'
+#' @return The error message
+#'
+#' @keywords internal
+error.message <- function(test_me){
+  if(is.error(test_me)) attr(test_me, "condition")$message
+}
+
 
 #' Checks Urls are in right format for API request
 #' 
