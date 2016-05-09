@@ -9,7 +9,8 @@
 #' @param data_parse_function A function that takes a request response, parses it and returns the data you need.
 #' @param customConfig list of httr options such as \code{httr::use_proxy}
 #'   or \code{httr::add_headers} that will be added to the request.
-#'
+#' @param simplifyVector Passed to jsonlite::fromJSON for response parsing
+#' 
 #' @details
 #' \strong{path_args} and \strong{pars_args} add default values to the baseURI.
 #'   NULL entries are removed. Use "" if you want an empty argument.
@@ -56,7 +57,8 @@ gar_api_generator <- function(baseURI,
                               path_args = NULL,
                               pars_args = NULL,
                               data_parse_function=NULL,
-                              customConfig=NULL){
+                              customConfig=NULL,
+                              simplifyVector=getOption("googleAuthR.jsonlite.simplifyVector")){
 
   http_header <- match.arg(http_header)
   if(substr(baseURI,nchar(baseURI),nchar(baseURI))!="/") baseURI <- paste0(baseURI, "/")
@@ -99,6 +101,7 @@ gar_api_generator <- function(baseURI,
       ## evaluates the shiny_access_token in the correct environment
       shiny_access_token <- eval(call_args$shiny_access_token,
                                  envir = f)
+      myMessage("Shiny Token found in environment", level=1)
     } else {
       shiny_access_token <- NULL
     }
@@ -132,12 +135,13 @@ gar_api_generator <- function(baseURI,
       req_url <- paste0(baseURI, path, pars)
 
       if(!batch){
-        message("Request: ", req_url)
+        myMessage("Request: ", req_url, level = 2)
         req <- doHttrRequest(req_url,
-                             shiny_access_token,
-                             http_header,
-                             the_body,
-                             customConfig)
+                             shiny_access_token=shiny_access_token,
+                             request_type=http_header,
+                             the_body=the_body,
+                             customConfig=customConfig,
+                             simplifyVector=simplifyVector)
 
         if(!is.null(data_parse_function)){
           reqtry <- try(data_parse_function(req$content, ...))
@@ -187,10 +191,18 @@ gar_api_generator <- function(baseURI,
 #'
 #' @keywords internal
 retryRequest <- function(f){
-  the_request <- try(f)
+  
+  verbose <- getOption("googleAuthR.verbose")
+  
+  if(verbose <= 1){
+    the_request <- try(httr::with_verbose(f))
+  } else {
+    the_request <- try(f)
+  }
+
 
   if(!the_request$status_code %in% c(200, 201)){
-    warning("Request Status Code: ", the_request$status_code)
+    myMessage("Request Status Code: ", the_request$status_code, level = 3)
 
     content <- jsonlite::fromJSON(httr::content(the_request,
                                               as = "text",
@@ -199,22 +211,21 @@ retryRequest <- function(f){
 
     if (exists("error", where=content)) {
       error <- content$error$message
-      warning("JSON fetch error: ",paste(error))
+      myMessage("JSON fetch error: ",paste(error), level = 2)
     } else {
       error <- "Unspecified Error"
     }
 
-    if(grepl('userRateLimitExceeded|quotaExceeded|internalServerError|backendError',
-             error)){
+    if(grepl("^5|429",the_request$status_code)){
       for(i in 1:getOption("googleAuthR.tryAttempts")){
-        warning("Trying again: ", i, " of ", getOption("googleAuthR.tryAttempts"))
+        myMessage("Trying again: ", i, " of ", getOption("googleAuthR.tryAttempts"), level = 3)
         Sys.sleep((2 ^ i) + stats::runif(n = 1, min = 0, max = 1))
         the_request <- try(f)
         if(the_request$status_code %in% c(200, 201)) break
       }
-      warning("All attempts failed.")
+      myMessage("All attempts failed.", level = 3)
     } else {
-      warning("No retry attempted: ", error)
+      myMessage("No retry attempted: ", error, level = 2)
     }
 
   }
@@ -232,27 +243,27 @@ retryRequest <- function(f){
 #'
 #' @keywords internal
 #' @family data fetching functions
-checkTokenAPI <- function(shiny_access_token=NULL, verbose=F){
+checkTokenAPI <- function(shiny_access_token=NULL){
 
   if(is.null(shiny_access_token)){
     ## local token
     token <- Authentication$public_fields$token
 
-    if(token_exists(verbose = verbose) && is_legit_token(token, verbose=verbose)) {
-      if(verbose) message("Valid local token")
+    if(token_exists() && is_legit_token(token)) {
+      myMessage("Valid local token", level = 1)
       TRUE
     } else {
-      if(verbose) message("Invalid local token")
+      warning("Invalid local token")
       FALSE
     }
 
   } else {
     ## is it a valid shiny token passed?
     if(is_legit_token(shiny_access_token)){
-      if(verbose) message("Valid Shiny token")
+      myMessage("Valid Shiny token", level = 1)
       TRUE
     } else {
-      if(verbose) message("Invalid Shiny token")
+      warning("Invalid Shiny token")
       FALSE
     }
   }
@@ -272,6 +283,7 @@ checkTokenAPI <- function(shiny_access_token=NULL, verbose=F){
 #' @param params A named character vector of other parameters to add to request.
 #' @param customConfig list of httr options such as \code{httr::use_proxy}
 #'   or \code{httr::add_headers} that will be added to the request.
+#' @param simplifyVector Passed to jsonlite::fromJSON
 #'
 #' @details Example of params: c(param1="foo", param2="bar")
 #'
@@ -281,7 +293,8 @@ doHttrRequest <- function(url,
                           shiny_access_token = NULL,
                           request_type="GET",
                           the_body=NULL,
-                          customConfig=NULL){
+                          customConfig=NULL,
+                          simplifyVector=getOption("googleAuthR.jsonlite.simplifyVector")){
 
   arg_list <- list(url = url,
                    config = get_google_token(shiny_access_token),
@@ -298,9 +311,11 @@ doHttrRequest <- function(url,
 
   }
 
-  if(!is.null(the_body)){
-    message("Body JSON parsed to: ", jsonlite::toJSON(the_body, auto_unbox=T))
+  if(!is.null(the_body) && arg_list$encode == "json"){
+    myMessage("Body JSON parsed to: ", jsonlite::toJSON(the_body, auto_unbox=T), level = 2)
   }
+  
+
 
   req <- retryRequest(do.call(request_type,
                               args = arg_list,
@@ -309,7 +324,7 @@ doHttrRequest <- function(url,
   if(checkGoogleAPIError(req)){
     content <- httr::content(req, as = "text", type = "application/json",encoding = "UTF-8")
     content <- jsonlite::fromJSON(content,
-                                  simplifyVector = getOption("googleAuthR.jsonlite.simplifyVector"))
+                                  simplifyVector = simplifyVector)
     req$content <- content
   }
 
@@ -323,13 +338,37 @@ doHttrRequest <- function(url,
 #' @param batched called from gar_batch or not
 #'
 #' @keywords internal
-checkGoogleAPIError <- function (req,
-                                 ok_content_types=getOption("googleAuthR.ok_content_types"),
-                                 batched=FALSE) {
+checkGoogleAPIError <- function(req,
+                                ok_content_types=getOption("googleAuthR.ok_content_types"),
+                                batched=FALSE) {
 
   ## from a batched request, we already have content
-  if(!batched){
-    ga.json <- httr::content(req, as = "text", type = "application/json", encoding = "UTF-8")
+  
+  rawResponse <- getOption("googleAuthR.rawResponse")
+  skip_checks <- FALSE
+  
+  if(rawResponse){
+    myMessage("Skipping API checks due to googleAuthR.rawResponse=TRUE", level=2)
+    skip_checks <- TRUE
+  }
+  
+  if(batched){
+    myMessage("Skipping API checks for batch content_type", level=2)
+    skip_checks <- TRUE
+  }
+  
+  if(!skip_checks){
+    
+    ga.json <- httr::content(req, 
+                             as = "text", 
+                             type = "application/json", 
+                             encoding = "UTF-8")
+    
+    if(is.null(ga.json)) {
+      warning('JSON parsing was NULL')
+      return(FALSE)
+    }
+    
     if(nchar(ga.json) > 0) {
       ga.json <- jsonlite::fromJSON(ga.json)
     } else {
@@ -345,27 +384,20 @@ checkGoogleAPIError <- function (req,
 
       }
     } else {
-      message("No content-type returned.")
+      myMessage("No content-type returned.", level=1)
       return(FALSE)
     }
 
+    ## get error message from API
     if (!is.null(ga.json$error$message)) {
-      stop("JSON fetch error: ",paste(ga.json$error$message))
+      stop("JSON fetch error: ", paste(ga.json$error$message))
     }
+    
+    httr::stop_for_status(req)
 
   } else {
     ga.json <- req
   }
-
-  if(is.null(ga.json)) {
-    stop('JSON parsing was NULL')
-  }
-
-  if (grepl("Error 400 (Bad Request)",ga.json[[1]][1])) {
-    stop('JSON fetch error: Bad request URL - 400. Fetched: ', url)
-  }
-
-  if(!batched) httr::stop_for_status(req)
 
   TRUE
 }

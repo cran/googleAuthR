@@ -203,12 +203,14 @@ hr {
 <body>
 <!--
 %\VignetteEngine{knitr::knitr}
-%\VignetteIndexEntry{Best practices for writing an API package}
+%\VignetteIndexEntry{googleAuthR user guide}
 -->
 
 <h1>googleAuthR - Google API Client Library for R</h1>
 
 <p>Build libraries for Google APIs with OAuth2 for both local and Shiny app use.</p>
+
+<p>This guide is also available at the <a href="http://code.markedmondson.me/googleAuthR/">googleAuthR website</a></p>
 
 <h2>R Google API libraries using googleAuthR</h2>
 
@@ -289,7 +291,7 @@ Use it within your own function definitions, to query the Google API you want.</
 <h3>Set up steps</h3>
 
 <ol>
-<li>Set up your project in the <a href="https://code.google.com/apis/console">Google API Console</a> to use the Google API you want.</li>
+<li>Set up your project in the Google API Console to use the Google API you want.</li>
 </ol>
 
 <h4>For local use</h4>
@@ -353,65 +355,73 @@ Use it within your own function definitions, to query the Google API you want.</
 
 <p>If for some reason you need authentication without access to a browser (for example when using Shiny Server), then you can authenticate locally and upload the <code>.httr-oauth</code> file to the folder of your script.</p>
 
-<h2>Authentication with Shiny</h2>
+<h2>Using with Shiny</h2>
 
 <p>If you want to create a Shiny app just using your data, upload the app with your own <code>.httr-oauth</code>.</p>
 
-<p>If you want to make a multi-user Shiny app, where users login to their own Google account and the app works with their data, read on:</p>
+<p>If you want to make a multi-user Shiny app, where users login to their own Google account and the app works with their data, googleAuthR provides these functions to help make the Google login process as easy as possible.</p>
 
-<p>googleAuthR provides these functions to help make the Google login process as easy as possible:</p>
+<p>As of 0.3.0 googleAuthR uses <a href="http://shiny.rstudio.com/articles/modules.html">Shiny Modules</a>.  This means less code and the ability to have multiple login buttons on the same app.</p>
 
 <ul>
-<li><code>loginOutput()</code> - creates the client side login button for users to authenticate with.</li>
-<li><code>renderLogin()</code> - creates the server side login button for users to authenticate with.</li>
-<li><code>reactiveAccessToken()</code> - creates the user&#39;s authentication token.</li>
+<li><code>googleAuth</code> - creates the authentication token and login button styling</li>
+<li><code>googleAuthUI</code> - creates the server side login button for users to authenticate with.</li>
 <li><code>with_shiny()</code> - wraps your API functions so they can be passed the user&#39;s authentication token.</li>
 </ul>
 
 <h4>Shiny authentication example</h4>
 
-<pre><code class="r">## in server.R
-library(shiny)
+<pre><code class="r">library(shiny)
 library(googleAuthR)
+options(&quot;googleAuthR.scopes.selected&quot; = c(&quot;https://www.googleapis.com/auth/urlshortener&quot;))
 
-shinyServer(function(input, output, session){
+shorten_url &lt;- function(url){
 
-   ## Get auth code from return URL
-   access_token  &lt;- reactiveAccessToken(session)
+  body = list(
+    longUrl = url
+  )
 
-   ## Make a loginButton to display using loginOutput
-   output$loginButton &lt;- renderLogin(session, access_token())
+  f &lt;- gar_api_generator(&quot;https://www.googleapis.com/urlshortener/v1/url&quot;,
+                         &quot;POST&quot;,
+                         data_parse_function = function(x) x$id)
 
-   api_output &lt;- eventReactive(input$submit, {
-     ## with_shiny() wraps your your_api_function to provide the arguments
-     ## requires you to pass &quot;shiny_access_token&quot;
-     short_url &lt;- with_shiny(f = your_api_function, 
-                             shiny_access_token = access_token(),
-                             arg1=input$url,
-                             arg2=input2)
+  f(the_body = body)
+
+}
+
+## server.R
+server &lt;- function(input, output, session){
+
+  ## Create access token and render login button
+  access_token &lt;- callModule(googleAuth, &quot;loginButton&quot;)
+
+  short_url_output &lt;- eventReactive(input$submit, {
+    ## wrap existing function with_shiny
+    ## pass the reactive token in shiny_access_token
+    ## pass other named arguments
+    with_shiny(f = shorten_url, 
+               shiny_access_token = access_token(),
+               url=input$url)
+
+  })
+
+  output$short_url &lt;- renderText({
+
+    short_url_output()
+
+  })
+}
+
+## ui.R
+ui &lt;- fluidPage(
+  googleAuthUI(&quot;loginButton&quot;),
+  textInput(&quot;url&quot;, &quot;Enter URL&quot;),
+  actionButton(&quot;submit&quot;, &quot;Shorten URL&quot;),
+  textOutput(&quot;short_url&quot;)
+)
 
 
-   })
-
-   output$short_url &lt;- renderText({
-
-    api_output()
-
-    })
-
-})
-
-## in ui.R
-library(shiny)
-library(googleAuthR)
-
-shinyUI(
-  fluidPage(
- loginOutput(&quot;loginButton&quot;),
-   textInput(&quot;url&quot;, &quot;Enter URL&quot;),
-   actionButton(&quot;submit&quot;, &quot;Shorten URL&quot;),
-   textOutput(&quot;short_url&quot;)
-   ))
+shinyApp(ui = ui, server = server)
 
 </code></pre>
 
@@ -421,7 +431,7 @@ shinyUI(
 
 <p>This involves downloading a secret JSON key with the authentication details.  More details are available from Google here: Using OAuth2.0 for Server to Server Applications[<a href="https://developers.google.com/identity/protocols/OAuth2ServiceAccount">https://developers.google.com/identity/protocols/OAuth2ServiceAccount</a>]</p>
 
-<p>To use, go to your Project in the <a href="https://console.developers.google.com/apis/credentials/serviceaccountkey">Google Developement Console</a> and select JSON Key type.  Save the JSON file to your computer and supply the file location to the function
+<p>To use, go to your Project in the Google Developement Console and select JSON Key type.  Save the JSON file to your computer and supply the file location to the function
 <code>gar_auth_service()</code></p>
 
 <p>Navigate to the JSON file from the Google Developer Console via: </p>
@@ -453,6 +463,12 @@ analytics_url &lt;- function(shortUrl,
 analytics_url(&quot;https://goo.gl/2FcFVQbk&quot;)
 
 </code></pre>
+
+<h2>Authentication via RStudio Addin</h2>
+
+<p>From version <code>0.3.0</code> a RStudio Addin is available via the RStudio Addin menu once you load the package, or via <code>googleAuthR:::gar_gadget()</code></p>
+
+<p>It lets you set the scopes and then saves you some typing by calling the Google authentication flow for you.</p>
 
 <h2>Revoking Authentication</h2>
 
@@ -586,6 +602,12 @@ analytics_url(&quot;https://goo.gl/2FcFVQbk&quot;)
 </code></pre>
 
 <p>The response is turned from JSON to a dataframe if possible, via <code>jsonlite::fromJSON</code></p>
+
+<h3>Skip parsing</h3>
+
+<p>In some cases you may want to skip all parsing of API content, perhaps if it is not JSON or some other reason.</p>
+
+<p>For these cases, you can use the option <code>option(&quot;googleAuthR.rawResponse&quot; = TRUE)</code> to skip all tests and return the raw response.</p>
 
 <h3>Batching API requests</h3>
 

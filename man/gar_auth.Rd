@@ -4,7 +4,7 @@
 \alias{gar_auth}
 \title{Authorize \code{googleAuthR}}
 \usage{
-gar_auth(token = NULL, new_user = FALSE, verbose = TRUE)
+gar_auth(token = NULL, new_user = FALSE)
 }
 \arguments{
 \item{token}{an actual token object or the path to a valid token stored as an
@@ -14,8 +14,6 @@ gar_auth(token = NULL, new_user = FALSE, verbose = TRUE)
 want to wipe the slate clean and re-authenticate with the same or different
 Google account. This deletes the \code{.httr-oauth} file in current working
 directory.}
-
-\item{verbose}{Increase feedback messages of the function.}
 }
 \value{
 an OAuth token object, specifically a
@@ -24,31 +22,14 @@ an OAuth token object, specifically a
 \description{
 Authorize \code{googleAuthR} to access your Google user data. You will be
 directed to a web browser, asked to sign in to your Google account, and to
-grant \code{googleAuthR} access to user data for Google Search Console. These user credentials are cached in a file named
+grant \code{googleAuthR} access to user data for Google Search Console. 
+These user credentials are cached in a file named
 \code{.httr-oauth} in the current working directory, from where they can be
 automatically refreshed, as necessary.
 }
 \details{
-Most users, most of the time, do not need to call this function
-explicitly -- it will be triggered by the first action that
-requires authorization. Even when called, the default arguments will often
-suffice. However, when necessary, this function allows the user to
-
-\itemize{
-  \item store a token -- the token is invisibly returned and can be assigned
-  to an object or written to an \code{.rds} file
-  \item read the token from an \code{.rds} file or pre-existing object in the
-  workspace
-  \item provide your own app key and secret -- this requires setting up a new
-  project in
-  \href{https://console.developers.google.com}{Google Developers Console}
-  \item prevent caching of credentials in \code{.httr-oauth}
-}
-
-In a call to \code{scr_auth}, the user can provide the token, app key and
-secret explicitly and can dictate whether credentials will be cached in
-\code{.httr_oauth}. If unspecified, these arguments are controlled via
-options, which, if undefined at the time \code{googleAuthR} is loaded, are
+These arguments are controlled via options, which, 
+if undefined at the time \code{googleAuthR} is loaded, are
 defined like so:
 
 \describe{
@@ -58,6 +39,8 @@ defined like so:
   defaults to a client secret that ships with the package}
   \item{cache}{Set to option \code{googleAuthR.httr_oauth_cache}, which
   defaults to TRUE}
+  \item{scopes}{Set to option \code{googleAuthR.scopes.selected}, which
+  defaults to demo scopes.}
 }
 
 To override these defaults in persistent way, predefine one or more of
