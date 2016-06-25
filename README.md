@@ -1,6 +1,7 @@
 # googleAuthR - Google API Client Library for R
+[![CRAN](http://www.r-pkg.org/badges/version/googleAuthR)](http://cran.r-project.org/package=googleAuthR)
 [![Travis-CI Build Status](https://travis-ci.org/MarkEdmondson1234/googleAuthR.svg?branch=master)](https://travis-ci.org/MarkEdmondson1234/googleAuthR)
-[![Analytics](https://ga-beacon.appspot.com/UA-73050356-1/googleAuthR/readme)](https://github.com/MarkEdmondson1234/googleAuthR)
+
 
 Build libraries for Google APIs with OAuth2 for both local and Shiny app use.
 
@@ -26,14 +27,19 @@ Here is a list of [available Google APIs](https://developers.google.com/apis-exp
 
 The below libraries are all cross-compatible as they use `googleAuthR` for authentication backend e.g. can use just one OAuth2 login flow and can be used in multi-user Shiny apps. 
 
-* [searchConsoleR](https://github.com/MarkEdmondson1234/searchConsoleR) - Search Console API
-* [bigQueryR](https://github.com/MarkEdmondson1234/bigQueryR) - BigQuery API
-* [googleAnalyticsR](https://github.com/MarkEdmondson1234/googleAnalyticsR_public) - Google Analytics API
+* [searchConsoleR](http://code.markedmondson.me/searchConsoleR/) - Search Console API
+* [bigQueryR](http://code.markedmondson.me/bigQueryR/) - BigQuery API
+* [googleAnalyticsR](http://code.markedmondson.me/googleAnalyticsR/) - Google Analytics API
 * [gtmR](https://github.com/MarkEdmondson1234/gtmR) - Google Tag Manager API (in progress)
 * [googleID](https://github.com/MarkEdmondson1234/googleID) - Simple user info from G+ API for Shiny app authentication flows.
 * [googleCloudStorageR](https://github.com/MarkEdmondson1234/googleCloudStorageR) - Google Cloud Storage API (in progress)
+* [RoogleVision](https://github.com/flovv/RoogleVision) - R Package for Image Recogntion, Object Detection, and OCR using the Google's Cloud Vision API
 
 Feel free to add your own via email or a pull request if you have used googleAuthR to build something cool. 
+
+## Example Shiny app
+
+An example shiny app with Google authentication is [deployed to shinyapps.io here](https://mark.shinyapps.io/googleAuthRexample/).   It uses the example app that is available in `system.file("shiny", package="googleAuthR")`
 
 ## Thanks to:
 
@@ -44,7 +50,7 @@ Feel free to add your own via email or a pull request if you have used googleAut
 
 ## Install
 
-GoogleAuthR version 0.2.0 is now available on CRAN
+GoogleAuthR version 0.3.0 is now available on CRAN
 ```r
 install.packages("googleAuthR")
 ```
@@ -109,7 +115,7 @@ options("googleAuthR.scopes.selected" = c("https://www.googleapis.com/auth/webma
 2. Click 'Create a new Client ID', and choose "Web Application".
 3. Note your Client ID and secret.
 4. Add the URL of where your Shiny app will run, with no port number. e.g. https://mark.shinyapps.io/searchConsoleRDemo/
-5. And/Or also put in localhost or 127.0.0.1 with a port number for local testing. Remember the port number you use as you will need it later to launch the app e.g. http://127.0.0.1:1221
+5. And/Or also put in localhost or 127.0.0.1 with a port number for local testing. Remember the port number you use as you will need it later to launch the app e.g. `http://127.0.0.1:1221`
 6. In your Shiny script modify these options:
   + `options("googleAuthR.webapp.client_id" = "YOUR_CLIENT_ID")`
   + `options("googleAuthR.webapp.client_secret" = "YOUR_CLIENT_SECRET")`
@@ -161,6 +167,8 @@ As of 0.3.0 googleAuthR uses [Shiny Modules](http://shiny.rstudio.com/articles/m
 * `with_shiny()` - wraps your API functions so they can be passed the user's authentication token.
 
 #### Shiny authentication example
+
+This is the example [deployed to shinyapps.io here](https://mark.shinyapps.io/googleAuthRexample/)
 
 ```r
 ## in global.R
@@ -287,37 +295,7 @@ For local use, delete the `.httr-oauth` file.
 
 For service level accounts delete the JSON file.
 
-For a Shiny app, a cookie is left by Google that will mean a faster login next time a user uses the app with no Authorization screen that they get the first time through.  To force this every time, activate the parameter `revoke=TRUE` within the `renderLogin` function.  Example below:
-
-```r
- shinyServer(function(input, output, session)){
-   
-   ## Get auth code from return URL
-   access_token  <- reactiveAccessToken(session)
- 
-   ## Make a loginButton to display using loginOutput
-   ## revoke=TRUE means upon logout a user will need to reauthenticate
-   output$loginButton <- renderLogin(session, access_token(), revoke=TRUE)
-   
-   ## Needed if revoke=TRUE above
-   revokeEventObserver(access_token())
-   
-   ...
-
-  }
- 
- ## in ui.R
- library(shiny)
- library(googleAuthR)
- 
- shinyUI(
-   fluidPage(
-     loginOutput("loginButton"),
-     ....
-     )
-     ))
- } 
-```
+For a Shiny app, a cookie is left by Google that will mean a faster login next time a user uses the app with no Authorization screen that they get the first time through.  To force this every time, activate the parameter `revoke=TRUE` within the `googleAuth` function.
 
 ## Generating your function
 
@@ -419,6 +397,32 @@ The response is turned from JSON to a dataframe if possible, via `jsonlite::from
 In some cases you may want to skip all parsing of API content, perhaps if it is not JSON or some other reason.
 
 For these cases, you can use the option `option("googleAuthR.rawResponse" = TRUE)` to skip all tests and return the raw response.
+
+Here is an example of this from the googleCloudStorageR library:
+
+```r
+gcs_get_object <- function(bucket, 
+                           object_name){
+
+
+  ## skip JSON parsing on output as we epxect a CSV
+  options(googleAuthR.rawResponse = TRUE)
+  
+  ## do the request
+  ob <- googleAuthR::gar_api_generator("https://www.googleapis.com/storage/v1/",
+                                       path_args = list(b = bucket,
+                                                        o = object_name),
+                                       pars_args = list(alt = "media"))
+  req <- ob()
+  
+  ## set it back to FALSE for other API calls.
+  options(googleAuthR.rawResponse = FALSE)
+
+  req
+
+
+}
+```
 
 ### Batching API requests
 

@@ -11,15 +11,23 @@ This guide is also available at the [googleAuthR website](http://code.markedmond
 
 ## R Google API libraries using googleAuthR
 
-Here is a list of [available Google APIs.](https://developers.google.com/apis-explorer/#p/) this library can be used with.
+Here is a list of [available Google APIs](https://developers.google.com/apis-explorer/#p/) to make with this library.
 
-These libraries are all compatible as they use `googleAuthR` for authentication backend e.g. can use just one OAuth2 login flow and are Shiny compatible. 
+The below libraries are all cross-compatible as they use `googleAuthR` for authentication backend e.g. can use just one OAuth2 login flow and can be used in multi-user Shiny apps. 
 
-* [searchConsoleR](https://github.com/MarkEdmondson1234/searchConsoleR) - Search Console API
-* [bigQueryR](https://github.com/MarkEdmondson1234/bigQueryR) - BigQuery API
-* [googleAnalyticsR](https://github.com/MarkEdmondson1234/googleAnalyticsR_public) - Google Analytics API
+* [searchConsoleR](http://code.markedmondson.me/searchConsoleR/) - Search Console API
+* [bigQueryR](http://code.markedmondson.me/bigQueryR/) - BigQuery API
+* [googleAnalyticsR](http://code.markedmondson.me/googleAnalyticsR/) - Google Analytics API
+* [gtmR](https://github.com/MarkEdmondson1234/gtmR) - Google Tag Manager API (in progress)
+* [googleID](https://github.com/MarkEdmondson1234/googleID) - Simple user info from G+ API for Shiny app authentication flows.
+* [googleCloudStorageR](https://github.com/MarkEdmondson1234/googleCloudStorageR) - Google Cloud Storage API (in progress)
+* [RoogleVision](https://github.com/flovv/RoogleVision) - R Package for Image Recogntion, Object Detection, and OCR using the Google's Cloud Vision API
 
 Feel free to add your own via email or a pull request if you have used googleAuthR to build something cool. 
+
+## Example Shiny app
+
+An example shiny app with Google authentication is [deployed to shinyapps.io here](https://mark.shinyapps.io/googleAuthRexample/).   It uses the example app that is available in `system.file("shiny", package="googleAuthR")`
 
 ## Thanks to:
 
@@ -30,7 +38,8 @@ Feel free to add your own via email or a pull request if you have used googleAut
 
 ## Install
 
-GoogleAuthR version 0.1.2 is now available on CRAN
+googleAuthR is available on CRAN
+
 ```r
 install.packages("googleAuthR")
 ```
@@ -73,7 +82,7 @@ It is preferred to configure your functions to only use the scopes they need.  S
 Set scopes via the option `googleAuthR.scopes.selected`.
 
 The below example sets scopes for Search Console, Google Analytics and Tag Manager:
-```
+```r
 options("googleAuthR.scopes.selected" = c("https://www.googleapis.com/auth/webmasters",
                                           "https://www.googleapis.com/auth/analytics",
                                           "https://www.googleapis.com/auth/tagmanager.readonly"))
@@ -92,8 +101,8 @@ options("googleAuthR.scopes.selected" = c("https://www.googleapis.com/auth/webma
 #### For Shiny use
 2. Click 'Create a new Client ID', and choose "Web Application".
 3. Note your Client ID and secret.
-4. Add the URL of where your Shiny app will run, with no port number. e.g. `https://mark.shinyapps.io/searchConsoleRDemo/`
-5. And/Or also put in localhost or `127.0.0.1` with a port number for local testing. Remember the port number you use as you will need it later to launch the app e.g. `http://127.0.0.1:1221`
+4. Add the URL of where your Shiny app will run, with no port number. e.g. https://mark.shinyapps.io/searchConsoleRDemo/
+5. And/Or also put in localhost or 127.0.0.1 with a port number for local testing. Remember the port number you use as you will need it later to launch the app e.g. `http://127.0.0.1:1221`
 6. In your Shiny script modify these options:
   + `options("googleAuthR.webapp.client_id" = "YOUR_CLIENT_ID")`
   + `options("googleAuthR.webapp.client_secret" = "YOUR_CLIENT_SECRET")`
@@ -128,11 +137,11 @@ googleAuthR::gar_auth(new_user=TRUE)
 
 Authentication token is cached in a hidden file called `.httr-oauth` in the working directory.
 
-### Authentication with no browser
+## Authentication with no browser
 
 If for some reason you need authentication without access to a browser (for example when using Shiny Server), then you can authenticate locally and upload the `.httr-oauth` file to the folder of your script.
 
-## Using with Shiny
+## Authentication with Shiny
 
 If you want to create a Shiny app just using your data, upload the app with your own `.httr-oauth`.
 
@@ -146,10 +155,16 @@ As of 0.3.0 googleAuthR uses [Shiny Modules](http://shiny.rstudio.com/articles/m
 
 #### Shiny authentication example
 
+This is the example [deployed to shinyapps.io here](https://mark.shinyapps.io/googleAuthRexample/)
+
 ```r
-library(shiny)
+## in global.R
 library(googleAuthR)
-options("googleAuthR.scopes.selected" = c("https://www.googleapis.com/auth/urlshortener"))
+library(shiny)
+
+options(googleAuthR.scopes.selected = "https://www.googleapis.com/auth/urlshortener")
+options(googleAnalyticsR.webapp.client_id = "YOUR_PROJECT_KEY")
+options(googleAnalyticsR.webapp.client_secret = "YOUR_CLIENT_SECRET")
 
 shorten_url <- function(url){
   
@@ -166,6 +181,8 @@ shorten_url <- function(url){
 }
 
 ## server.R
+source("global.R")
+
 server <- function(input, output, session){
   
   ## Create access token and render login button
@@ -197,10 +214,20 @@ ui <- fluidPage(
 )
 
 
-shinyApp(ui = ui, server = server)
+### If the above global.R, server.R and ui.R files are in folder "test" like so:
+## /home
+##    |->/test/
+##            /global.R
+##            /ui.R
+##            /server.R
+##
+## Port 1221 has been set in your Google Project options as the port to listen to
+## as explained in authentication setup section
+## run below in /home directory
+shiny::runApp("./test/", launch.browser=T, port=1221)
 
 ```
-
+ 
 ## Authentication with a JSON file via Service Accounts
 
 You can also authenticate single users via a server side JSON file rather than going through the online OAuth2 flow.  The end user could supply this JSON file, or you can upload your own JSON file to your applications. 
@@ -247,43 +274,15 @@ From version `0.3.0` a RStudio Addin is available via the RStudio Addin menu onc
 
 It lets you set the scopes and then saves you some typing by calling the Google authentication flow for you.
 
+![googleAuthRGadget](https://storage.googleapis.com/mark-edmondson-public-files/myObject)
+
 ## Revoking Authentication
 
 For local use, delete the `.httr-oauth` file.
 
 For service level accounts delete the JSON file.
 
-For a Shiny app, a cookie is left by Google that will mean a faster login next time a user uses the app with no Authorization screen that they get the first time through.  To force this every time, activate the parameter `revoke=TRUE` within the `renderLogin` function.  Example below:
-
-```r
- shinyServer(function(input, output, session)){
-   
-   ## Get auth code from return URL
-   access_token  <- reactiveAccessToken(session)
- 
-   ## Make a loginButton to display using loginOutput
-   ## revoke=TRUE means upon logout a user will need to reauthenticate
-   output$loginButton <- renderLogin(session, access_token(), revoke=TRUE)
-   
-   ## Needed if revoke=TRUE above
-   revokeEventObserver(access_token())
-   
-   ...
-
-  }
- 
- ## in ui.R
- library(shiny)
- library(googleAuthR)
- 
- shinyUI(
-   fluidPage(
-     loginOutput("loginButton"),
-     ....
-     )
-     ))
- } 
-```
+For a Shiny app, a cookie is left by Google that will mean a faster login next time a user uses the app with no Authorization screen that they get the first time through.  To force this every time, activate the parameter `revoke=TRUE` within the `googleAuth` function.
 
 ## Generating your function
 
@@ -386,6 +385,32 @@ In some cases you may want to skip all parsing of API content, perhaps if it is 
 
 For these cases, you can use the option `option("googleAuthR.rawResponse" = TRUE)` to skip all tests and return the raw response.
 
+Here is an example of this from the googleCloudStorageR library:
+
+```r
+gcs_get_object <- function(bucket, 
+                           object_name){
+
+
+  ## skip JSON parsing on output as we epxect a CSV
+  options(googleAuthR.rawResponse = TRUE)
+  
+  ## do the request
+  ob <- googleAuthR::gar_api_generator("https://www.googleapis.com/storage/v1/",
+                                       path_args = list(b = bucket,
+                                                        o = object_name),
+                                       pars_args = list(alt = "media"))
+  req <- ob()
+  
+  ## set it back to FALSE for other API calls.
+  options(googleAuthR.rawResponse = FALSE)
+
+  req
+
+
+}
+```
+
 ### Batching API requests
 
 If you are doing many API calls, you can speed this up a lot by using the batch option.
@@ -471,134 +496,6 @@ walkData <- function(ga, ga_pars, start, end){
 
 ```
 
-
-
-### Putting it together
-
-Below is an example for a link shortner API call to goo.gl:
-
-```r
-#' Shortens a url using goo.gl
-#'
-#' @param url URl to shorten with goo.gl
-#' 
-#' @return a string of the short URL
-#'
-#' Documentation: https://developers.google.com/url-shortener/v1/getting_started
-
-## a wrapper for the function that users pass in the URL to shorten
-shorten_url <- function(url){
-  
-  ## turns into {'longUrl' : '<<example.com>>'} when using jsonlite::toJSON(body)
-  body = list(
-    longUrl = url
-  )
-  
-  ## generate the API call function
-  ## POST https://www.googleapis.com/urlshortener/v1/url
-  ## response has 4 objects $kind, $id, $longUrl, and $status, but we only want $id
-  f <- gar_api_generator("https://www.googleapis.com/urlshortener/v1/url",
-                         "POST",
-                         data_parse_function = function(x) x$id)
-                             
-                             
-  ## now the function has been generated, pass in the body.
-  ## this function has no need for path_arguments or pars_arguments, but that will differ for other APIs.
-  f(the_body = body)
-  
-}
-
-## to use:
-
-gar_auth()
-shorten_url("http://www.google.com")
-
-```
-
-
-### Using with Shiny
-
-If you want to create a Shiny app just using your data, upload the app with your own `.httr-oauth`.
-
-If you want to make a multi-user Shiny app, where users login to their own Google account and the app works with their data, googleAuthR provides these functions to help make the Google login process as easy as possible:
-
-* `loginOutput()` - creates the client side login button for users to authenticate with.
-* `renderLogin()` - creates the server side login button for users to authenticate with.
-* `reactiveAccessToken()` - creates the user's authentication token.
-* `with_shiny()` - wraps your API functions so they can be passed the user's authentication token.
-
-#### Shiny authentication example
-
-```r
-## in global.R
-library(googleAuthR)
-options("googleAuthR.scopes.selected" = c("https://www.googleapis.com/auth/urlshortener"))
-
-
-shorten_url <- function(url){
-
-  body = list(
-    longUrl = url
-  )
-  
-  f <- gar_api_generator("https://www.googleapis.com/urlshortener/v1/url",
-                         "POST",
-                         data_parse_function = function(x) x$id)
-  
-  f(the_body = body)
-  
-}
-
-
-## in server.R
-library(shiny)
-library(googleAuthR)
-source('global.R')
-
-shinyServer(function(input, output, session){
- 
-   ## Get auth code from return URL
-   access_token  <- reactiveAccessToken(session)
- 
-   ## Make a loginButton to display using loginOutput
-   output$loginButton <- renderLogin(session, access_token())
-
-   short_url_output <- eventReactive(input$submit, {
-     ## wrap existing function with_shiny
-     ## pass the reactive token in shiny_access_token
-     ## pass other named arguments
-     short_url <- with_shiny(f = shorten_url, 
-                             shiny_access_token = access_token(),
-                             url=input$url)
-     
-     
-   })
-   
-   output$short_url <- renderText({
-
-    short_url_output()
-     
-    })
-
-})
-
-## in ui.R
-library(shiny)
-library(googleAuthR)
-
-shinyUI(
-  fluidPage(
- loginOutput("loginButton"),
-   textInput("url", "Enter URL"),
-   actionButton("submit", "Shorten URL"),
-   textOutput("short_url")
-   ))
-
-```
- 
-### More info
-
-See more at `?gar_api_generator` once the documentation has caught up.
 
 ## Example with goo.gl
 
