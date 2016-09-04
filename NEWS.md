@@ -1,5 +1,23 @@
 # News Updates
 
+# v0.4.0
+
+* Add client based authentication in JavaScript plus example app
+* Add check to `gar_auth_service` to see if you have downloaded right JSON file
+* Discovery API functions to get details on Google APIs added: `gar_discovery_apis_list` and `gar_discovery_api`
+* Add `gar_create_package` that takes `gar_discovery_api` JSON and creates R package
+* Change warnings() in batch to myMessage() level 2
+* ensure batch requests only occur per second to help calculation of QPS limits
+* Add 404 message if batch requests are not found.
+* Fixed halt error if message can't parse body JSON, will now fail gracefully but carry on
+* allow overwriting of default httr "encode" again (#28)
+* Headers will contain up to date version number of package
+* Add `gar_auto_auth` and `gar_attach_auto_auth` for auto-authentication upon a package load
+* Fix bug where you couldn't pass in the file location of the ".httr-oauth" location to `gar_auth()`
+* `gar_auth` now raises errors not NULL for passing incorrect token file locations of tokens
+* `gar_auth` respects renamed `.httr-oauth` tokens now via `getOption("googleAuthR.httr_oauth_cache")`
+* Add link to Github repo with auto-generated packages: `https://github.com/MarkEdmondson1234/autoGoogleAPI`
+
 # v0.3.1 - CRAN
 
 * Add link to [example shiny app](https://mark.shinyapps.io/googleAuthRexample/)

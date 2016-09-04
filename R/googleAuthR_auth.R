@@ -104,15 +104,16 @@ gar_auth <- function(token = NULL,
     if(is_legit_token(token)) {
       google_token <- token
     } else {
-      google_token <- try(suppressWarnings(readRDS(token)), silent = TRUE)
+      myMessage("Reading token from file path", level = 2)
+      google_token <- try(suppressWarnings(readRDS(token)[[1]]), silent = TRUE)
+      
       if(is.error(google_token)) {
-        myMessage(sprintf("Cannot read token from alleged .rds file:\n%s",
-                          token), level=3)
-        return(invisible(NULL))
+        stop(sprintf("Cannot read token from alleged .rds file:\n%s",
+                          token))
       } else if(!is_legit_token(google_token)) {
           
-        myMessage(sprintf("File does not contain a proper token:\n%s", token), level=3)
-        return(invisible(NULL))
+        stop(sprintf("File does not contain a proper token:\n%s", token))
+
       }
     }
     
@@ -165,17 +166,24 @@ token_exists <- function() {
   
   token <- Authentication$public_fields$token
   
+  httr_cache <- getOption("googleAuthR.httr_oauth_cache")
+  if(class(httr_cache) == "logical"){
+    httr_cache <- ".httr-oauth"
+  }
+  
   if(is.null(token)) {
     
     myMessage("No authorization yet in this session!", level=3)
     
-    if(file.exists(".httr-oauth")) {
-      myMessage(paste("NOTE: a .httr-oauth file exists in current working",
-                    "directory.\n Run gar_auth() to use the",
-                    "credentials cached in .httr-oauth for this session."), level=3)
+    if(file.exists(httr_cache)) {
+      myMessage(paste("NOTE: a ", httr_cache ,
+                      " file exists in current working",
+                      "directory.\n Run gar_auth() to use the",
+                      "credentials cached for this session."), level=3)
     } else {
-      myMessage(paste("No .httr-oauth file exists in current working directory.",
-                    "Run scr_auth() to provide credentials."), level=3)
+      myMessage(paste("No ", httr_cache ,
+                      " file exists in current working directory.",
+                      " Run gar_auth() to provide credentials."), level=3)
     }
     
     myMessage("Token doesn't exist", level=3)
@@ -197,7 +205,7 @@ token_exists <- function() {
 is_legit_token <- function(x) {
   
   if(!inherits(x, "Token2.0")) {
-    myMessage("Not a Token2.0 object. Found:", class(x), level=3)
+    myMessage("Not a Token2.0 object. Found:", class(x), level=2)
     return(FALSE)
   }
   
@@ -251,11 +259,16 @@ is_legit_token <- function(x) {
 #' @family authentication functions
 gar_auth_service <- function(json_file, scope = getOption("googleAuthR.scopes.selected")){
   
+  stopifnot(file.exists(json_file))
   
   endpoint <- httr::oauth_endpoints("google")
   
   secrets  <- jsonlite::fromJSON(json_file)
   scope <- paste(scope, collapse=" ")
+  
+  if(is.null(secrets$private_key)){
+    stop("private_key not found in JSON - have you downloaded the correct JSON file? (Service Account Keys, not service account client)")
+  }
   
   google_token <- httr::oauth_service_token(endpoint, secrets, scope)
   

@@ -1,3 +1,126 @@
+#' Shiny JavaScript Google Authorisation [UI Module]
+#' 
+#' A Javascript Google authorisation flow for Shiny apps.
+#'
+#' Shiny Module for use with \link{gar_auth_js}
+#' 
+#' @param id Shiny id
+#' @param login_class CSS class of login button
+#' @param logout_class CSS class ofr logout button
+#' @param login_text Text to show on login button
+#' @param logout_text Text to show on logout button
+#'
+#' @return Shiny UI
+#' @export
+gar_auth_jsUI <- function(id, 
+                          login_class = "btn btn-primary",
+                          logout_class = "btn btn-danger",
+                          login_text = "Log In",
+                          logout_text = "Log Out"){
+
+  ns <- shiny::NS(id)
+
+  shiny::tagList(
+
+    shiny::tags$script(src='https://apis.google.com/js/auth.js'),
+    shiny::tags$button(id = ns("login"), onclick="auth();", login_text, class = login_class),
+    shiny::tags$button(id = ns("logout"), onclick="out();", logout_text, class = logout_class),
+    shiny::tags$script(type="text/javascript", shiny::HTML(paste0("
+      var authorizeButton = document.getElementById('",ns("login"),"');
+      var signoutButton = document.getElementById('",ns("logout"),"');
+      signoutButton.style.display = 'none';
+      function auth() {
+        var config = {
+          'client_id': '",getOption("googleAuthR.webapp.client_id"),"',
+          'scope': '", paste(getOption("googleAuthR.scopes.selected"), collapse = " "),"',
+          'approval_prompt':'force'
+        };
+        gapi.auth.authorize(config, function() {
+          token = gapi.auth.getToken();
+          console.log('login complete');
+          Shiny.onInputChange('",ns("js_auth_access_token"),"', token.access_token);
+          Shiny.onInputChange('",ns("js_auth_token_type"),"', token.token_type);
+          Shiny.onInputChange('",ns("js_auth_expires_in"),"', token.expires_in);
+          authorizeButton.style.display = 'none';
+          signoutButton.style.display = 'block';
+        });
+       }
+       function out(){
+          gapi.auth.signOut();
+          location.reload()
+       }
+       "
+    ) )
+    )
+  )
+
+}
+
+#' Shiny JavaScript Google Authorisation [Server Module]
+#'
+#' Shiny Module for use with \link{gar_auth_jsUI}
+#'
+#' Call via \code{shiny::callModule(gar_auth_js, "your_id")}
+#'
+#' @param input shiny input
+#' @param output shiny output
+#' @param session shiny session
+#'
+#' @return A httr reactive OAuth2.0 token
+#' @import shiny
+#' @export
+gar_auth_js <- function(input, output, session){
+
+    js_token <- shiny::reactive({
+      shiny::validate(
+        shiny::need(input$js_auth_access_token, "Authenticate")
+      )
+      
+      list(access_token = input$js_auth_access_token,
+           token_type = input$js_auth_token_type,
+           expires_in = input$js_auth_expires_in
+      )
+      
+    })
+    
+    ## Create access token
+    access_token <- shiny::reactive({
+      
+      shiny::req(js_token())
+      
+      gar_js_getToken(js_token())
+      
+    })
+    
+    return(access_token)
+
+}
+
+#' Create a httr token from a js token
+#' @keywords internal
+gar_js_getToken <- function(token,
+                            client.id     = getOption("googleAuthR.webapp.client_id"),
+                            client.secret = getOption("googleAuthR.webapp.client_secret")){
+  
+  gar_app <- httr::oauth_app("google", key = client.id, secret = client.secret)
+  
+  scope_list <- getOption("googleAuthR.scope")
+  
+  # Create a Token2.0 object consistent with the token obtained from gar_auth()
+  token_formatted <-
+    httr::Token2.0$new(app = gar_app,
+                       endpoint = httr::oauth_endpoints("google"),
+                       credentials = list(access_token = token$access_token,
+                                          token_type = token$token_type,
+                                          expires_in = token$expires_in,
+                                          refresh_token = NULL),
+                       params = list(scope = scope_list, type = NULL,
+                                     use_oob = FALSE, as_header = TRUE),
+                       cache_path = getOption("googleAuthR.httr_oauth_cache"))
+  
+  token_formatted
+}
+
 #' Creates a random character code
 #' 
 #' @param seed random seed.
@@ -99,23 +222,15 @@ gar_shiny_getUrl <- function(session){
   
   if(!is.null(session)){
     pathname <- session$clientData$url_pathname
-    ## hack for shinyapps.io
-    if(session$clientData$url_hostname == "internal.shinyapps.io"){
-      split_hostname <- strsplit(pathname, "/")[[1]]
-      hostname <-  paste(split_hostname[2],"shinyapps.io", sep=".")
-      pathname <- paste0("/",split_hostname[3],"/")
-      
-    } else {
-      hostname <- session$clientData$url_hostname
-    }
+    hostname <- session$clientData$url_hostname
+    port <- session$clientData$url_port
     
     url <- paste0(session$clientData$url_protocol,
                   "//",
                   hostname,
-                  ifelse(hostname %in% c("127.0.0.1","localhost"),
-                         ":",
-                         pathname),
-                  session$clientData$url_port)
+                  if(!is.null(port)) paste0(":",port),
+                  if(pathname != "/") pathname) 
+    
     myMessage("Shiny URL detected as: ", url, level=1)
     url
   } else {

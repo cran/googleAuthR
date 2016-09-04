@@ -35,6 +35,10 @@ gar_batch <- function(call_list, ...){
   
   ## call doHttrRequest with batched together functions
   req <- doBatchRequest(l)
+  if(grepl("404 Not Found", httr::content(req,as="text", encoding = "UTF-8"))){
+    stop("Batch Request: 404 Not Found")
+  }
+  
   batch_content <-  parseBatchResponse(req)
   
   parsed_batch_content <- lapply(function_list, applyDataParseFunction, batch_content, ...)
@@ -199,7 +203,11 @@ parseBatchResponse <- function(batch_response){
   responses <- split_vector(r, index)
   
   responses_content <- lapply(responses, function(x){
-    # index <- which(grepl("^(\\{|\\})$", x))
+    ## detect empty body responses
+    ## https://github.com/MarkEdmondson1234/googleAuthR/issues/43
+    empty_status_code <- grepl("HTTP/1.1 204 No Content", x)
+    if(any(empty_status_code)) return(NULL)
+    
     index <- which(grepl("Content-Length:", x))
     index <- c(index+1, length(x))
     if(any(is.na(index))){
@@ -218,10 +226,10 @@ parseBatchResponse <- function(batch_response){
     index <- which(grepl("HTTP|Content-Length", x))
     rh <- unlist(split_vector(x, index, remove_splits = FALSE))
     if(grepl("40", rh[2])){
-      warning("400 type error in response")
+      myMessage("400 type error in response", level=2)
     }
     if(grepl("50", rh[2])){
-      warning("500 type error in response")
+      myMessage("500 type error in response", level=2)
     }
     rh
     
@@ -315,6 +323,10 @@ doBatchRequest <- function(batched){
                    )
   
   myMessage("Making Batch API call", level=2)
+  
+  # ensure batch requests only occur per second to help calculation of QPS limits
+  Sys.sleep(1)
+  
   req <- retryRequest(do.call("POST", 
                               args = arg_list,
                               envir = asNamespace("httr")))

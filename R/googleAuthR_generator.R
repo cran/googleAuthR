@@ -146,9 +146,9 @@ gar_api_generator <- function(baseURI,
         if(!is.null(data_parse_function)){
           reqtry <- try(data_parse_function(req$content, ...))
           if(any(is.error(reqtry), is.null(reqtry))){
-            warning("API Data failed to parse.  Returning raw content.
+            warning("API Data failed to parse.  Returning parsed from JSON content.
                     Use this to test against your data_parse_function.")
-            req <- req$content
+            req <- req$parsed_content
           } else {
             req <- reqtry
           }
@@ -211,7 +211,7 @@ retryRequest <- function(f){
                                               type = "application/json",
                                               encoding = "UTF-8"))
 
-    if (exists("error", where=content)) {
+    if(exists("error", where=content)) {
       error <- content$error$message
       myMessage("JSON fetch error: ",paste(error), level = 2)
     } else {
@@ -291,7 +291,7 @@ checkTokenAPI <- function(shiny_access_token=NULL){
 #'
 #' @details Example of params: c(param1="foo", param2="bar")
 #'
-#'
+#' @importFrom utils packageVersion
 #' @keywords internal
 doHttrRequest <- function(url,
                           shiny_access_token = NULL,
@@ -303,20 +303,24 @@ doHttrRequest <- function(url,
   arg_list <- list(url = url,
                    config = get_google_token(shiny_access_token),
                    body = the_body,
-                   encode = "json",
+                   encode = if(!is.null(customConfig$encode)) customConfig$encode else "json",
                    httr::add_headers("Accept-Encoding" = "gzip"),
-                   httr::user_agent("libcurl/7.43.0 r-curl/0.9.3 httr/1.0.0 googleAuthR/0.1.2 (gzip)")
+                   httr::user_agent(paste0("googleAuthR/", 
+                                           packageVersion("googleAuthR"),
+                                           " (gzip)"))
                    )
 
   if(!is.null(customConfig)){
     stopifnot(inherits(customConfig, "list"))
 
-    arg_list <- c(arg_list, customConfig)
+    arg_list <- c(arg_list, customConfig[setdiff(names(customConfig), "encode")])
 
   }
 
   if(!is.null(the_body) && arg_list$encode == "json"){
-    myMessage("Body JSON parsed to: ", jsonlite::toJSON(the_body, auto_unbox=T), level = 2)
+    tt <- try(myMessage("Body JSON parsed to: ", jsonlite::toJSON(the_body, auto_unbox=T), 
+                        level = 2))
+    if(is.error(tt)) myMessage("Could not parse body JSON", level = 2)
   }
   
 
