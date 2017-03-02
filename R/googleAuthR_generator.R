@@ -199,24 +199,37 @@ retryRequest <- function(f){
   } else {
     the_request <- try(f)
   }
+  
+  if(is.error(the_request)){
+    warning("Request failed before finding status code. Retrying.")
+    status_code <- "500"
+  } else {
+    status_code <- as.character(the_request$status_code)
+  }
 
 
-  status_code <- as.character(the_request$status_code)
   
   if(!(grepl("^20",status_code))){
     myMessage("Request Status Code: ", status_code, level = 3)
 
-    content <- jsonlite::fromJSON(httr::content(the_request,
+    content <- try(jsonlite::fromJSON(httr::content(the_request,
                                               as = "text",
                                               type = "application/json",
-                                              encoding = "UTF-8"))
+                                              encoding = "UTF-8")))
+    if(is.error(content)){
+      
+      warning("No JSON content found in request", call. = FALSE)
+      error <- "Could not fetch response"
+      
+    } else if(exists("error", where=content)) {
 
-    if(exists("error", where=content)) {
       error <- content$error$message
-      myMessage("JSON fetch error: ",paste(error), level = 2)
+
     } else {
       error <- "Unspecified Error"
     }
+    
+    myMessage("JSON fetch error: ",paste(error), level = 2)
 
     if(grepl("^5|429",status_code)){
       for(i in 1:getOption("googleAuthR.tryAttempts")){
@@ -313,7 +326,13 @@ doHttrRequest <- function(url,
   if(!is.null(customConfig)){
     stopifnot(inherits(customConfig, "list"))
 
-    arg_list <- c(arg_list, customConfig[setdiff(names(customConfig), "encode")])
+    ## fix bug where unnamed customConfigs were ignored
+    ## encode is only named customConfig that has an effect
+    if(!is.null(names(customConfig))){
+      arg_list <- c(arg_list, customConfig[names(customConfig) == ""])
+    } else {
+      arg_list <- c(arg_list, customConfig)
+    }
 
   }
 
@@ -321,6 +340,15 @@ doHttrRequest <- function(url,
     tt <- try(myMessage("Body JSON parsed to: ", jsonlite::toJSON(the_body, auto_unbox=T), 
                         level = 2))
     if(is.error(tt)) myMessage("Could not parse body JSON", level = 2)
+    
+    ## if verbose = 0 then write the JSON body to a file
+    if(getOption("googleAuthR.verbose") == 0){
+      write_out <- list(url = url,
+                        request_type = request_type,
+                        body_json = jsonlite::toJSON(the_body, auto_unbox=T))
+      saveRDS(write_out, file = "request_debug.rds")
+      myMessage("Written url, request_type and body_json to file 'request_debug.rds'.  Use readRDS('request_debug.rds') to see it. ", level = 1)
+    }
   }
   
 
