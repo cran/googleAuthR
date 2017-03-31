@@ -24,6 +24,8 @@ This guide is also available at the [googleAuthR website](http://code.markedmond
 
 Here is a list of [available Google APIs](https://developers.google.com/apis-explorer/#p/) to make with this library.
 The below libraries are all cross-compatible as they use `googleAuthR` for authentication backend e.g. can use just one OAuth2 login flow and can be used in multi-user Shiny apps. 
+
+* [googleComputeEngineR](https://cloudyr.github.io/googleComputeEngineR/) - Google Compute Engine VMs API
 * [searchConsoleR](http://code.markedmondson.me/searchConsoleR/) - Search Console API
 * [bigQueryR](http://code.markedmondson.me/bigQueryR/) - BigQuery API. Part of the cloudyr project.
 * [googleAnalyticsR](http://code.markedmondson.me/googleAnalyticsR/) - Google Analytics API
@@ -47,12 +49,16 @@ An example shiny app with Google authentication is [deployed to shinyapps.io her
 
 ## Install
 
-GoogleAuthR version 0.3.0 is now available on CRAN
+googleAuthR is available on CRAN
+
 ```r
 install.packages("googleAuthR")
 ```
+
 Check out [News](NEWS.md) to see the features of the development version.
+
 If you want to use the development version on Github, install via:
+
 ```r
 ## load the library or download it if necessary
 if(!require(googleAuthR)){
