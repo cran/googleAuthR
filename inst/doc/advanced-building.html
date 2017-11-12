@@ -12,7 +12,7 @@
 
 <meta name="author" content="Mark Edmondson" />
 
-<meta name="date" content="2017-10-20" />
+<meta name="date" content="2017-11-12" />
 
 <title>Advanced Google API building techniques</title>
 
@@ -70,7 +70,7 @@ code > span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Inf
 
 <h1 class="title toc-ignore">Advanced Google API building techniques</h1>
 <h4 class="author"><em>Mark Edmondson</em></h4>
-<h4 class="date"><em>2017-10-20</em></h4>
+<h4 class="date"><em>2017-11-12</em></h4>
 
 
 
@@ -82,13 +82,13 @@ code > span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Inf
 <p>In some cases you may want to skip all parsing of API content, perhaps if it is not JSON or some other reason.</p>
 <p>For this, you can use the option <code>option(&quot;googleAuthR.rawResponse&quot; = TRUE)</code> to skip all tests and return the raw response.</p>
 <p>Here is an example of this from the googleCloudStorageR library:</p>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">gcs_get_object &lt;-<span class="st"> </span><span class="cf">function</span>(bucket, 
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">gcs_get_object &lt;-<span class="st"> </span>function(bucket, 
                            object_name){
   ## skip JSON parsing on output as we epxect a CSV
   <span class="kw">options</span>(<span class="dt">googleAuthR.rawResponse =</span> <span class="ot">TRUE</span>)
   
   ## do the request
-  ob &lt;-<span class="st"> </span>googleAuthR<span class="op">::</span><span class="kw">gar_api_generator</span>(<span class="st">&quot;https://www.googleapis.com/storage/v1/&quot;</span>,
+  ob &lt;-<span class="st"> </span>googleAuthR::<span class="kw">gar_api_generator</span>(<span class="st">&quot;https://www.googleapis.com/storage/v1/&quot;</span>,
                                        <span class="dt">path_args =</span> <span class="kw">list</span>(<span class="dt">b =</span> bucket,
                                                         <span class="dt">o =</span> object_name),
                                        <span class="dt">pars_args =</span> <span class="kw">list</span>(<span class="dt">alt =</span> <span class="st">&quot;media&quot;</span>))
@@ -116,7 +116,7 @@ code > span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Inf
 <span class="kw">options</span>(<span class="dt">googleAuthR.batch_endpoint =</span> <span class="st">&quot;https://www.googleapis.com/batch/urlshortener/v1&quot;</span>)
 
 ## from goo.gl API
-shorten_url &lt;-<span class="st"> </span><span class="cf">function</span>(url){
+shorten_url &lt;-<span class="st"> </span>function(url){
 
   body =<span class="st"> </span><span class="kw">list</span>(
     <span class="dt">longUrl =</span> url
@@ -124,17 +124,17 @@ shorten_url &lt;-<span class="st"> </span><span class="cf">function</span>(url){
   
   f &lt;-<span class="st"> </span><span class="kw">gar_api_generator</span>(<span class="st">&quot;https://www.googleapis.com/urlshortener/v1/url&quot;</span>,
                          <span class="st">&quot;POST&quot;</span>,
-                         <span class="dt">data_parse_function =</span> <span class="cf">function</span>(x) x<span class="op">$</span>id)
+                         <span class="dt">data_parse_function =</span> function(x) x$id)
   
   <span class="kw">f</span>(<span class="dt">the_body =</span> body)
   
 }
 
 ## from goo.gl API
-user_history &lt;-<span class="st"> </span><span class="cf">function</span>(){
+user_history &lt;-<span class="st"> </span>function(){
   f &lt;-<span class="st"> </span><span class="kw">gar_api_generator</span>(<span class="st">&quot;https://www.googleapis.com/urlshortener/v1/url/history&quot;</span>,
                          <span class="st">&quot;GET&quot;</span>,
-                         <span class="dt">data_parse_function =</span> <span class="cf">function</span>(x) x<span class="op">$</span>items)
+                         <span class="dt">data_parse_function =</span> function(x) x$items)
   
   <span class="kw">f</span>()
 }
@@ -151,7 +151,7 @@ ggg &lt;-<span class="st"> </span><span class="kw">gar_batch</span>(<span class=
 <p>A function to enable this is implemented at <code>gar_batch_walk</code>, with an example below:</p>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">library</span>(googleAuthR)
 
-walkData &lt;-<span class="st"> </span><span class="cf">function</span>(ga, ga_pars, start, end){
+walkData &lt;-<span class="st"> </span>function(ga, ga_pars, start, end){
 
   ## creates dates to walk through
   dates &lt;-<span class="st"> </span><span class="kw">as.character</span>(
@@ -179,7 +179,7 @@ walkData &lt;-<span class="st"> </span><span class="cf">function</span>(ga, ga_p
 <span class="co">#' @param url URl to shorten with goo.gl</span>
 <span class="co">#' </span>
 <span class="co">#' @return a string of the short URL</span>
-shorten_url &lt;-<span class="st"> </span><span class="cf">function</span>(url){
+shorten_url &lt;-<span class="st"> </span>function(url){
   
   body =<span class="st"> </span><span class="kw">list</span>(
     <span class="dt">longUrl =</span> url
@@ -187,7 +187,7 @@ shorten_url &lt;-<span class="st"> </span><span class="cf">function</span>(url){
   
   f &lt;-<span class="st"> </span><span class="kw">gar_api_generator</span>(<span class="st">&quot;https://www.googleapis.com/urlshortener/v1/url&quot;</span>,
                          <span class="st">&quot;POST&quot;</span>,
-                         <span class="dt">data_parse_function =</span> <span class="cf">function</span>(x) x<span class="op">$</span>id)
+                         <span class="dt">data_parse_function =</span> function(x) x$id)
   
   <span class="kw">f</span>(<span class="dt">the_body =</span> body)
   
@@ -221,10 +221,10 @@ shorten_url &lt;-<span class="st"> </span><span class="cf">function</span>(url){
 <p>In some cases, you may only want to cache the API responses under certain conditions. A common use case is if an API call is checking if a job is running or finished. You would only want to cache the finished state, otherwise the function will run indefinitely.</p>
 <p>For those circumstances, you can supply a function that takes the API response as its only input, and outputs <code>TRUE</code> or <code>FALSE</code> whether to do the caching. This allows you to introduce a check e.g. for finished jobs.</p>
 <p>The default will only cache for when a successful request <code>200</code> is found:</p>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="cf">function</span>(req){req<span class="op">$</span>status_code <span class="op">==</span><span class="st"> </span><span class="dv">200</span>}</code></pre></div>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">function(req){req$status_code ==<span class="st"> </span><span class="dv">200</span>}</code></pre></div>
 <p>For more advanced use cases, examine the response of failed and successful API calls, and create the appropriate function. Pass that function when creating the cache:</p>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="co"># demo function to cache within</span>
-shorten_url_cache &lt;-<span class="st"> </span><span class="cf">function</span>(url){
+shorten_url_cache &lt;-<span class="st"> </span>function(url){
   
   body =<span class="st"> </span><span class="kw">list</span>(
     <span class="dt">longUrl =</span> url
@@ -232,15 +232,15 @@ shorten_url_cache &lt;-<span class="st"> </span><span class="cf">function</span>
   
   f &lt;-<span class="st"> </span><span class="kw">gar_api_generator</span>(<span class="st">&quot;https://www.googleapis.com/urlshortener/v1/url&quot;</span>,
                          <span class="st">&quot;POST&quot;</span>,
-                         <span class="dt">data_parse_function =</span> <span class="cf">function</span>(x) x)
+                         <span class="dt">data_parse_function =</span> function(x) x)
   
   <span class="kw">f</span>(<span class="dt">the_body =</span> body)
   
 }
 
 ## only cache if this URL
-<span class="kw">gar_cache_setup</span>(<span class="dt">invalid_func =</span> <span class="cf">function</span>(req){
-    req<span class="op">$</span>content<span class="op">$</span>longUrl <span class="op">==</span><span class="st"> &quot;http://code.markedmondson.me/&quot;</span>
+<span class="kw">gar_cache_setup</span>(<span class="dt">invalid_func =</span> function(req){
+    req$content$longUrl ==<span class="st"> &quot;http://code.markedmondson.me/&quot;</span>
     })
 
 <span class="co"># authentication</span>
