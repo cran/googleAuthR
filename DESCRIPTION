@@ -1,8 +1,9 @@
 Package: googleAuthR
 Type: Package
-Version: 0.6.1
+Version: 0.6.2
 Title: Authenticate and Create Google APIs
-Description: Create R functions that interact with OAuth2 Google APIs easily,
+Description: Create R functions that interact with OAuth2 Google APIs 
+    <https://developers.google.com/apis-explorer/> easily,
     with auto-refresh and Shiny compatibility.
 Authors@R: c(person("Mark", "Edmondson",email = "m@sunholo.com",
                   role = c("aut", "cre"),
@@ -23,11 +24,11 @@ LazyData: true
 VignetteBuilder: knitr
 RoxygenNote: 6.0.1
 NeedsCompilation: no
-Packaged: 2017-11-12 19:48:43 UTC; mark
+Packaged: 2017-11-14 21:26:42 UTC; mark
 Author: Mark Edmondson [aut, cre] (0000-0002-8434-3881),
   Jennifer Bryan [ctb],
   Johann deBoer [ctb],
   Neal Richardson [ctb]
 Maintainer: Mark Edmondson <m@sunholo.com>
 Repository: CRAN
-Date/Publication: 2017-11-13 00:05:10 UTC
+Date/Publication: 2017-11-14 21:45:36 UTC
