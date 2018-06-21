@@ -4,12 +4,16 @@
 \alias{gar_batch}
 \title{Turn a list of gar_fetch_functions into batch functions}
 \usage{
-gar_batch(call_list, ...)
+gar_batch(call_list, ...,
+  batch_endpoint = getOption("googleAuthR.batch_endpoint", default =
+  "https://www.googleapis.com/batch"))
 }
 \arguments{
 \item{call_list}{a list of functions from \code{\link{gar_api_generator}}}
 
 \item{...}{further arguments passed to the data parse function of f}
+
+\item{batch_endpoint}{the batch API endpoint to send to}
 }
 \value{
 A list of the Google API responses
@@ -23,6 +27,37 @@ This function will turn all the individual Google API functions
   
 If you need to pass multiple data parse function arguments its probably best 
   to do it in separate batches to avoid confusion.
+}
+\examples{
+
+\dontrun{
+
+## usually set on package load
+options(googleAuthR.batch_endpoint = "https://www.googleapis.com/batch/urlshortener/v1")
+
+## from goo.gl API
+shorten_url <- function(url){
+  body = list(longUrl = url)
+  f <- gar_api_generator("https://www.googleapis.com/urlshortener/v1/url",
+                         "POST",
+                          data_parse_function = function(x) x$id)
+                        
+  f(the_body = body)
+}
+
+
+## from goo.gl API
+user_history <- function(){
+  f <- gar_api_generator("https://www.googleapis.com/urlshortener/v1/url/history",
+                      "GET",
+                      data_parse_function = function(x) x$items)
+                      
+  f()
+}
+
+gar_batch(list(shorten_url("http://markedmondson.me"), user_history()))
+
+}
 }
 \seealso{
 https://developers.google.com/webmaster-tools/v3/how-tos/batch

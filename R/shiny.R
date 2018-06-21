@@ -9,7 +9,7 @@
 #' @param logout_class CSS class of logout button
 #' @param login_text Text to show on login button
 #' @param logout_text Text to show on logout button
-#' @param approval_prompt The type of authentication
+#' @param approval_prompt_force Whether to force a login each time
 #'
 #' @return Shiny UI
 #' @import assertthat
@@ -19,16 +19,21 @@ gar_auth_jsUI <- function(id,
                           logout_class = "btn btn-danger",
                           login_text = "Log In",
                           logout_text = "Log Out",
-                          approval_prompt = c("force","online","offline")){
-                            
-  approval_prompt <- match.arg(approval_prompt)                          
+                          approval_prompt_force = TRUE){
 
   assert_that(
     is.string(login_class),
     is.string(logout_class),
     is.string(login_text),
-    is.string(logout_text)
+    is.string(logout_text),
+    is.flag(approval_prompt_force)
   )
+  
+  if(approval_prompt_force){
+    approval_prompt_line <- ",\n          'approval_prompt':'force'"
+  } else {
+    approval_prompt_line <-NULL
+  }
   
   ## No @import to avoid making shiny and miniUI an import
   check_package_loaded("shiny")
@@ -46,8 +51,8 @@ gar_auth_jsUI <- function(id,
       function auth() {
         var config = {
           'client_id': '",getOption("googleAuthR.webapp.client_id"),"',
-          'scope': '", paste(getOption("googleAuthR.scopes.selected"), collapse = " "),"',
-          'approval_prompt':'",approval_prompt,"'
+          'scope': '", paste(getOption("googleAuthR.scopes.selected"), collapse = " "),"'",
+          approval_prompt_line,"
         };
         gapi.auth.authorize(config, function() {
           token = gapi.auth.getToken();
@@ -131,7 +136,7 @@ gar_js_getToken <- function(token,
                                     refresh_token = NULL),
                  params = list(scope = scope_list, type = NULL,
                                use_oob = FALSE, as_header = TRUE),
-                 cache_path = getOption("googleAuthR.httr_oauth_cache"))
+                 cache_path = FALSE)
   
   token_formatted
 }
@@ -302,7 +307,7 @@ gar_shiny_getToken <- function(code,
                                   refresh_token = token$refresh_token),
                params = list(scope = scope_list, type = NULL,
                              use_oob = FALSE, as_header = TRUE),
-               cache_path = getOption("googleAuthR.httr_oauth_cache"))
+               cache_path = FALSE)
   
 }
 

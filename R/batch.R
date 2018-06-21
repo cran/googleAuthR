@@ -3,6 +3,7 @@
 #' 
 #' @param call_list a list of functions from \code{\link{gar_api_generator}}
 #' @param ... further arguments passed to the data parse function of f
+#' @param batch_endpoint the batch API endpoint to send to
 #' 
 #' @return A list of the Google API responses
 #' 
@@ -20,9 +21,43 @@
 #'   to do it in separate batches to avoid confusion. 
 #'  
 #' @export
+#' 
+#' @examples 
+#' 
+#' \dontrun{
+#' 
+#' ## usually set on package load
+#' options(googleAuthR.batch_endpoint = "https://www.googleapis.com/batch/urlshortener/v1")
+#' 
+#' ## from goo.gl API
+#' shorten_url <- function(url){
+#'   body = list(longUrl = url)
+#'   f <- gar_api_generator("https://www.googleapis.com/urlshortener/v1/url",
+#'                          "POST",
+#'                           data_parse_function = function(x) x$id)
+#'                         
+#'   f(the_body = body)
+#' }
+#' 
+#' 
+#' ## from goo.gl API
+#' user_history <- function(){
+#'   f <- gar_api_generator("https://www.googleapis.com/urlshortener/v1/url/history",
+#'                       "GET",
+#'                       data_parse_function = function(x) x$items)
+#'                       
+#'   f()
+#' }
+#' 
+#' gar_batch(list(shorten_url("http://markedmondson.me"), user_history()))
+#' 
+#' }
 #' @family batch functions
 #' @importFrom httr content
-gar_batch <- function(call_list, ...){
+gar_batch <- function(call_list, 
+                      ..., 
+                      batch_endpoint = getOption("googleAuthR.batch_endpoint", 
+                                                 default = "https://www.googleapis.com/batch")){
   
   # function_list <- lapply(call_list, eval)
   function_list <- call_list
@@ -37,9 +72,9 @@ gar_batch <- function(call_list, ...){
   ## call doHttrRequest with batched together functions
   cached_call <- !is.null(gar_cache_get_loc())
   if(cached_call){
-    req <- memDoBatchRequest(l)
+    req <- memDoBatchRequest(l, batch_endpoint = batch_endpoint)
   } else {
-    req <- doBatchRequest(l)
+    req <- doBatchRequest(l, batch_endpoint = batch_endpoint)
   }
   
   if(req$status_code == 404){
@@ -78,12 +113,27 @@ gar_batch <- function(call_list, ...){
 #' @param batch_function a function that will act on the result list of each batch API call
 #' @param data_frame_output if the list of lists are dataframes, you can bind them all by setting to TRUE
 #' @param ... further arguments passed to the data parse function of f
+#' @param batch_endpoint the batch API endpoint to send
 #' 
 #' @details
 #' You can modify more than one parameter or path arg, 
 #'   but it must be the same walked vector e.g. \code{start = end = x}
 #'   
 #' Many Google APIs have \code{batch_size} limits greater than 10, 1000 is common.
+#' 
+#' The `f` function needs to be a `gar_api_generator()` function that uses one of `path_args`, `pars_args` or `body_args` to construct the URL (rather than say using `sprintf()` to create the API URL). 
+#' 
+#' You don't need to set the headers in the Google docs for batching API functions - those are done for you.
+#' 
+#' The argument `walk_vector` needs to be a vector of the values of the arguments to walk over, which you indicate will walk over the pars/path or body arguments on the function via on of the `*_walk` arguments e.g. if walking over id=1, id=2, for a path argument then it would be `path_walk="id"` and `walk_vector=c(1,2,3,4)`
+#' 
+#' The `gar_*` parameter is required to pass intended for other arguments to the function `f` you may need to pass through.
+#' 
+#' `gar_batch_walk()` only supports changing one value at a time, for one or multiple arguments (I think only changing the `start-date`, `end-date` example would be the case when you walk through more than one per call)
+#' 
+#' `batch_size` should be over 1 for batching to be of any benefit at all
+#' 
+#' The `batch_function` argument gives you a way to operate on the parsed output of each call
 #'   
 #' @return \strong{if data_frame_output is FALSE}: A list of lists.  
 #'   Outer list the length of number of batches required, inner lists the results from the calls
@@ -91,6 +141,41 @@ gar_batch <- function(call_list, ...){
 #'   \strong{if data_frame_output is TRUE}: The list of lists will attempt to rbind all the results
 #' 
 #' @export
+#' 
+#' @examples 
+#' 
+#' \dontrun{
+#'                                
+#'
+#' # get a webproperty per account 
+#' getAccountInfo <- gar_api_generator(
+#'   "https://www.googleapis.com/analytics/v3/management/accounts",
+#'   "GET", data_parse_function = function(x) unique(x$items$id))
+#' 
+#' getWebpropertyInfo <- gar_api_generator(
+#'   "https://www.googleapis.com/analytics/v3/management/", # don't use sprintf to construct this
+#'   "GET",
+#'   path_args = list(accounts = "default", webproperties = ""),
+#'   data_parse_function = function(x) x$items)
+#' 
+#' walkData <- function(){
+#' 
+#'   # here due to R lazy evaluation  
+#'   accs <- getAccountInfo()
+#'   gar_batch_walk(getWebpropertyInfo, 
+#'                  walk_vector = accs,
+#'                  gar_paths = list("webproperties" = ""),
+#'                  path_walk = "accounts",
+#'                  batch_size = 100, data_frame_output = FALSE)
+#'                  }
+#'                  
+#' # do the walk
+#' walkData()
+#' 
+#' }
+#' 
+#' 
+#' 
 #' @family batch functions
 #' @importFrom utils modifyList
 gar_batch_walk <- function(f,
@@ -100,7 +185,13 @@ gar_batch_walk <- function(f,
                            batch_size=10,
                            batch_function=NULL,
                            data_frame_output=TRUE,
-                           ...){
+                           ...,
+                           batch_endpoint = getOption("googleAuthR.batch_endpoint", 
+                                                      default = "https://www.googleapis.com/batch")){
+  
+  if(!is.gar_function(f)){
+    stop("Passed function f is not of class gar_function (not generated by gar_api_generator?)", call. = FALSE)
+  }
   
   limit_batch <- split(walk_vector, ceiling(seq_along(walk_vector) / batch_size))
 
@@ -108,7 +199,7 @@ gar_batch_walk <- function(f,
   
   ## lapply for each batch
   bl <- lapply(limit_batch, function(y){
-    if(length(limit_batch) > 1) message("Request #: ", paste(y, collapse=" : "))
+    if(length(limit_batch) > 1) myMessage("Request #: ", paste(y, collapse=" : "), level = 3)
     ## lapply for each call in batch
     fl <- lapply(y, function(x){
       
@@ -119,7 +210,7 @@ gar_batch_walk <- function(f,
       names(path_walk_list) <- path_walk
       body_walk_list <- lapply(body_walk, function(z) z = x)
       names(body_walk_list) <- body_walk
-      
+
       if(length(pars_walk) > 0) gar_pars  <- modifyList(gar_pars, pars_walk_list)
       if(length(path_walk) > 0) gar_paths <- modifyList(gar_paths, path_walk_list)
       if(length(body_walk) > 0) the_body  <- modifyList(the_body, body_walk_list)      
@@ -132,7 +223,7 @@ gar_batch_walk <- function(f,
     names(fl) <- as.character(y)
     
     ## do the API call in batches
-    batch_data <- gar_batch(fl, ...)
+    batch_data <- gar_batch(fl, ..., batch_endpoint = batch_endpoint)
     
     if(!is.null(batch_function)) {
       batch_data <- batch_function(batch_data)
@@ -285,15 +376,14 @@ makeBatchRequest <- function(f){
 #' Batch requests to Google APIs that support it
 #' 
 #' @param batched an element of a list of parsed batch requests
+#' @param batch_endpoint the batch API endpoint to send to
 #' 
 #' @keywords internal
 #' @family batch functions
 #' @importFrom httr add_headers user_agent 
 #' @noRd
-doBatchRequest <- function(batched){
-  
-  batch_endpoint <- getOption("googleAuthR.batch_endpoint", 
-                              default = "https://www.googleapis.com/batch")
+doBatchRequest <- function(batched, 
+                           batch_endpoint){
   
   if(batch_endpoint == "https://www.googleapis.com/batch"){
     warning("Deprecated batch endpoint being used.  Use option('googleAuthR.batch_endpoint') 

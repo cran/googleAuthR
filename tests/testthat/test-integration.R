@@ -199,11 +199,11 @@ test_that("Encoding parameters works (#100 & #101)", {
   skip_if_no_env_auth(auth_env)
   
   fileSearch <- function(query) {
-    googleAuthR::gar_api_generator("https://www.googleapis.com/drive/v3/files/",
+    gar_api_generator("https://www.googleapis.com/drive/v3/files/",
                                    "GET",pars_args=list(q=query))()
   }
   
-  googleAuthR::gar_auth(Sys.getenv("GAR_TEST_DRIVE_FILE"))
+  gar_auth(Sys.getenv("GAR_TEST_DRIVE_FILE"))
   
   searchResponse <- fileSearch("mimeType != 'application/vnd.google-apps.folder'")
   
@@ -240,7 +240,7 @@ test_that("Can do batching with caching (#106)", {
   ## get rid of a silly warning
   expect_false(suppressWarnings(googleAnalyticsR:::is.error("g")))
   
-  batched_call <- googleAnalyticsR::google_analytics(
+  batched_call <- googleAnalyticsR::google_analytics_3(
     id = c(115751114, 123875646),
     start = "2017-01-01", end = "2017-08-01",
     metrics = "sessions",
