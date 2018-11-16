@@ -1,3 +1,15 @@
+#' @noRd
+#' @param filename location of JavaScript file with %s template locations in this package's inst folder
+#' @param ... The correct number of strings to be replaced into %s's locations of filename
+#' @return JavaScript script tag
+load_js_template <- function(filename, ...){
+  f <- system.file(filename, package = "googleAuthR")
+  assertthat::assert_that(assertthat::is.readable(f))
+  o <- readChar(f, file.info(f)$size)
+  shiny::tags$script(type="text/javascript", shiny::HTML(gsub("\n|  ","",sprintf(o, ...))))
+}
+
+
 # check loaded package
 check_package_loaded <- function(package_name){
   if (!requireNamespace(package_name, quietly = TRUE)) {
@@ -41,8 +53,7 @@ split_vector <- function(vector, index, remove_splits=TRUE){
   l <- list()
   for(i in 2:length(index)){
     if(is.na(index[i])){
-      warning("No index found")
-      return(c("{", '"error":"no index"', "}"))
+     stop("No index found: i-", i, "for vector-", vector[[1]])
     }
     s <- vector[index[i-1]:index[i]] 
     
@@ -53,7 +64,7 @@ split_vector <- function(vector, index, remove_splits=TRUE){
     
     # remove leading or trailing empty strings
     if(s[1] == "") s <- s[-1]
-    if(s[length(s)] == "") s <- s[-length(s)]
+    if(s[length(s)] == "") s <- s[-length(s)] # bug in searchConsoleR #43
     
     if(exists("l")){
       l <- c(l, list(s))
