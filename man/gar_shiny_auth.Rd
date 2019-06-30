@@ -12,6 +12,8 @@ gar_shiny_auth(session)
 \description{
 This can be used at the top of the server function for authentication when you have used
   \link{gar_shiny_ui} to create a login page for your ui function.
+
+In some platforms the URL you are authenticating from will not match the Docker container the script is running in (e.g. shinyapps.io or a kubernetes cluster) - in that case you can manually set it via `options(googleAuthR.redirect = http://your-shiny-url`).  In other circumstances the Shiny app should be able to detect this itself.
 }
 \details{
 If using  \link{gar_shiny_ui}, put this at the top of your server.R function
@@ -65,3 +67,4 @@ Other pre-load shiny authentication: \code{\link{gar_shiny_auth_url}},
 \author{
 Based on a gist by Joe Cheng, RStudio
 }
+\concept{pre-load shiny authentication}

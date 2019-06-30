@@ -14,7 +14,7 @@
 #' 
 #' @noRd
 gar_cache_set_loc <- function(cache, invalid_func){
-  myMessage("Set API cache", level = 3)
+  myMessage("Set API cache", level = 2)
   
   .gar_cache$cache <- cache
   .gar_cache$invalid <- invalid_func
@@ -123,7 +123,7 @@ memDoHttrRequest <- function(req_url,
   if(existing_cache){
     myMessage("Reading cache", level = 3)
   } else {
-    myMessage("Making new cache", level = 2)
+    myMessage("Making new cache", level = 1)
   }
   
   req <- cachedHttrRequest(req_url,
@@ -144,7 +144,7 @@ memDoHttrRequest <- function(req_url,
   })
 
   if(!cache_result){
-    myMessage("Forgetting cache", level = 2)
+    myMessage("Forgetting cache", level = 1)
     forget(cachedHttrRequest)
   } else {
     myMessage("Passed cache_function", level = 1)
@@ -182,7 +182,7 @@ memDoBatchRequest <- function(l, batch_endpoint){
   })
   
   if(!cache_result){
-    myMessage("Forgetting cache", level = 2)
+    myMessage("Forgetting cache", level = 1)
     forget(cachedBatchedRequest)
   } else {
     myMessage("Passed cache_function", level = 1)

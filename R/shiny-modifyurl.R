@@ -24,18 +24,9 @@ gar_shiny_auth_url <- function(req,
                                approval_prompt = c("auto","force")) {
   access_type <- match.arg(access_type)
   approval_prompt <- match.arg(approval_prompt)
-
-  if(req$SERVER_NAME == "127.0.0.1"){
-    host <- "localhost"
-  } else {
-    host <- req$SERVER_NAME
-  }
   
-  url_redirect <- paste0(req$rook.url_scheme,"://",host,":",req$SERVER_PORT)
+  url_redirect <- workout_redirect(req)
 
-  if(req$PATH_INFO != "/"){
-    url_redirect <- paste0(url_redirect, req$PATH_INFO)
-  }
   gar_shiny_getAuthUrl(url_redirect,
                        state = state,
                        client.id     = client.id,
@@ -43,6 +34,32 @@ gar_shiny_auth_url <- function(req,
                        scope         = scope,
                        access_type   = access_type,
                        approval_prompt = approval_prompt)
+  
+}
+
+workout_redirect <- function(req){
+  
+  if(getOption("googleAuthR.redirect") != ""){
+    return(getOption("googleAuthR.redirect"))
+  }
+  
+  if(Sys.getenv("R_CONFIG_ACTIVE") == "shinyapps"){
+    return(getOption("googleAuthR.redirect", "googleAuthR.redirect_option_not_configured"))
+  } 
+  
+  if(req$SERVER_NAME == "127.0.0.1"){
+    host <- "localhost"
+  } else {
+    host <- req$SERVER_NAME
+  }
+  
+  url_redirect <- paste0(req$rook.url_scheme,"://",host,":",req$SERVER_PORT)
+  
+  if(req$PATH_INFO != "/"){
+    url_redirect <- paste0(url_redirect, req$PATH_INFO)
+  }
+  
+  url_redirect
   
 }
 
@@ -189,6 +206,8 @@ make_googleAuth_ui <- function(req){
 #' 
 #' This can be used at the top of the server function for authentication when you have used
 #'   \link{gar_shiny_ui} to create a login page for your ui function.
+#'
+#' In some platforms the URL you are authenticating from will not match the Docker container the script is running in (e.g. shinyapps.io or a kubernetes cluster) - in that case you can manually set it via `options(googleAuthR.redirect = http://your-shiny-url`).  In other circumstances the Shiny app should be able to detect this itself. 
 #' 
 #' @export
 #' 

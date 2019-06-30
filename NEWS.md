@@ -1,3 +1,18 @@
+# googleAuthR v0.8.0
+
+* Change behaviour on API parse errors to write a diagnostic object to the working directory
+* Add `gar_debug_parsing` to help debug API parsing errors.
+* Fix batching that errored if body was exactly the same 
+* Set environment args in `gar_set_client()` to help deployments on Shinyapps.io
+* Support API body page requests in `gar_api_page()`
+* Fix `gar_set_scopes()` to allow multiple scopes when setting with `web_json`
+* Change required scopes in `gar_auto_auth` to only require one of the scopes specified, instead of all of them
+* Fully remove `TRAVIS_AUTH` 
+* Remove some message spam from startup
+* Fix mocks failing with `httptest` if used with `with_mock_api()` vs `with_mock_API()`
+* Add `option(googleAuthR.redirect)` to help publish Shiny apps to some platforms (#136)
+* Add support for using gcloud application-default credentials on Jupyter notebooks via `gar_gce_auth_default()` (#147)
+
 # googleAuthR v0.7.0
 
 * Deprecate `https://www.googleapis.com/batch` batch endpoint fully as per https://developers.googleblog.com/2018/03/discontinuing-support-for-json-rpc-and.html

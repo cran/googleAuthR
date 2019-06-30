@@ -6,8 +6,8 @@
 \usage{
 googleAuth(input, output, session, login_text = "Login via Google",
   logout_text = "Logout", login_class = "btn btn-primary",
-  logout_class = "btn btn-default", access_type = c("online", "offline"),
-  approval_prompt = c("auto", "force"), revoke = FALSE)
+  logout_class = "btn btn-default", access_type = c("online",
+  "offline"), approval_prompt = c("auto", "force"), revoke = FALSE)
 }
 \arguments{
 \item{input}{shiny input}
@@ -38,6 +38,8 @@ Server part of shiny module, use with \link{googleAuthUI}
 }
 \details{
 Call via \code{shiny::callModule(googleAuth, "your_ui_name", login_text = "Login")}
+
+In some platforms the URL you are authenticating from will not match the Docker container the script is running in (e.g. shinyapps.io or a kubernetes cluster) - in that case you can manually set it via `options(googleAuthR.redirect = http://your-shiny-url`).  In other circumstances the Shiny app should be able to detect this itself.
 }
 \examples{
 
@@ -98,3 +100,4 @@ shinyApp(ui = ui, server = server)
 \seealso{
 Other shiny module functions: \code{\link{googleAuthUI}}
 }
+\concept{shiny module functions}

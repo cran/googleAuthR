@@ -5,8 +5,9 @@
 \title{Walk data through batches}
 \usage{
 gar_batch_walk(f, walk_vector, gar_pars = NULL, gar_paths = NULL,
-  the_body = NULL, pars_walk = NULL, path_walk = NULL, body_walk = NULL,
-  batch_size = 10, batch_function = NULL, data_frame_output = TRUE, ...,
+  the_body = NULL, pars_walk = NULL, path_walk = NULL,
+  body_walk = NULL, batch_size = 10, batch_function = NULL,
+  data_frame_output = TRUE, ...,
   batch_endpoint = getOption("googleAuthR.batch_endpoint", default =
   "https://www.googleapis.com/batch"))
 }
@@ -96,6 +97,22 @@ walkData <- function(){
 # do the walk
 walkData()
 
+# to walk body data, be careful to modify a top level body name:
+changed_emails <- lapply(email, function(x){userRef = list(email = x)})
+
+batched <- gar_batch_walk(users, 
+                       walk_vector = changed_emails, 
+                       the_body = list(
+                           permissions = list(
+                             local = list(permissions)
+                           ),
+                           userRef = list(
+                             email = email[[1]]
+                         )
+                        ),
+                        body_walk = "userRef",
+                        batch_size = 300,
+                        data_frame_output = FALSE)
 }
 
 
@@ -104,3 +121,4 @@ walkData()
 \seealso{
 Other batch functions: \code{\link{gar_batch}}
 }
+\concept{batch functions}

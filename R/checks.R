@@ -136,13 +136,13 @@ token_exists <- function() {
 #' @family data fetching functions
 checkTokenAPI <- function(shiny_access_token=NULL){
   
-  if(any(which(grepl("with_mock_API", as.character(sys.calls()))))){
-    myMessage("Skipping token checks as using with_mock_API", level = 2)
+  if(any(which(grepl("with_mock_API", as.character(sys.calls()), ignore.case = FALSE)))){
+    myMessage("Skipping token checks as using with_mock_API", level = 1)
     return(TRUE)
   }
   
   if(!is.null(gar_cache_get_loc())){
-    myMessage("Skipping token checks as using cache", level = 2)
+    myMessage("Skipping token checks as using cache", level = 1)
     return(TRUE)
   }
   
@@ -217,7 +217,6 @@ checkGoogleAPIError <- function(req){
   
   ## get error message from API
   if (!is.null(ga.json$error$message)) {
-    gar_token_info(2)
     stop("API returned: ", paste(ga.json$error$message), call. = FALSE)
   }
   
