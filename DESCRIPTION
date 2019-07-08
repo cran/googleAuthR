@@ -1,6 +1,6 @@
 Package: googleAuthR
 Type: Package
-Version: 0.8.0
+Version: 0.8.1
 Title: Authenticate and Create Google APIs
 Description: Create R functions that interact with OAuth2 Google APIs 
     <https://developers.google.com/apis-explorer/> easily,
@@ -20,13 +20,14 @@ Imports: assertthat (>= 0.2.0), digest, httr (>= 1.4.0), jsonlite (>=
         0.9.16), R6 (>= 2.1.0), memoise (>= 1.1.0), utils
 Suggests: bigQueryR, covr, devtools (>= 1.12.0), formatR (>= 1.4),
         googleAnalyticsR, httptest, knitr, miniUI (>= 0.1.1),
-        rmarkdown, roxygen2 (>= 5.0.0), shiny (>= 0.13.2), testthat
+        rmarkdown, roxygen2 (>= 5.0.0), shiny (>= 0.13.2), testthat,
+        usethis (>= 1.5.1)
 License: MIT + file LICENSE
 LazyData: true
 VignetteBuilder: knitr
 RoxygenNote: 6.1.1
 NeedsCompilation: no
-Packaged: 2019-06-30 14:39:36 UTC; mark
+Packaged: 2019-07-08 18:01:41 UTC; mark
 Author: Mark Edmondson [aut, cre] (<https://orcid.org/0000-0002-8434-3881>),
   Jennifer Bryan [ctb],
   Johann deBoer [ctb],
@@ -35,4 +36,4 @@ Author: Mark Edmondson [aut, cre] (<https://orcid.org/0000-0002-8434-3881>),
   Joe Cheng [ctb]
 Maintainer: Mark Edmondson <m@sunholo.com>
 Repository: CRAN
-Date/Publication: 2019-06-30 15:00:03 UTC
+Date/Publication: 2019-07-08 19:00:09 UTC
