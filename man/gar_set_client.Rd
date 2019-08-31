@@ -5,7 +5,8 @@
 \title{Setup the clientId, clientSecret and scopes}
 \usage{
 gar_set_client(json = Sys.getenv("GAR_CLIENT_JSON"),
-  web_json = Sys.getenv("GAR_CLIENT_WEB_JSON"), scopes = NULL)
+  web_json = Sys.getenv("GAR_CLIENT_WEB_JSON"), scopes = NULL,
+  activate = c("offline", "web"))
 }
 \arguments{
 \item{json}{The file location of an OAuth 2.0 client ID json file}
@@ -13,6 +14,8 @@ gar_set_client(json = Sys.getenv("GAR_CLIENT_JSON"),
 \item{web_json}{The file location of client ID json file for web applications}
 
 \item{scopes}{A character vector of scopes to set}
+
+\item{activate}{Which credential to activate}
 }
 \value{
 The \code{project-id} the app has been set for
@@ -47,7 +50,8 @@ By default the JSON file will be looked for in the location specified by the
 \examples{
 \dontrun{
 
-gar_set_client("google-client.json", scopes = "http://www.googleapis.com/auth/webmasters")
+gar_set_client("google-client.json", 
+               scopes = "http://www.googleapis.com/auth/webmasters")
 gar_auth_service("google-service-auth.json")
 }
 

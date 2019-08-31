@@ -12,7 +12,7 @@
 #'   If these differ, then reauthentication may be needed.
 #' 
 #' @export
-gar_check_existing_token <- function(token = Authentication$public_fields$token){
+gar_check_existing_token <- function(token = .auth$cred){
   
   cache_path <- scopes <- client_id <- client_secret <- FALSE
   
@@ -100,7 +100,7 @@ is_legit_token <- function(x) {
 #' @import assertthat
 token_exists <- function() {
   
-  token <- Authentication$public_fields$token
+  token <- .auth$cred
   
   if(is.null(token)) {
     
@@ -136,7 +136,8 @@ token_exists <- function() {
 #' @family data fetching functions
 checkTokenAPI <- function(shiny_access_token=NULL){
   
-  if(any(which(grepl("with_mock_API", as.character(sys.calls()), ignore.case = FALSE)))){
+  if(any(which(grepl("with_mock_API", 
+                     as.character(sys.calls()), ignore.case = FALSE)))){
     myMessage("Skipping token checks as using with_mock_API", level = 1)
     return(TRUE)
   }
@@ -148,8 +149,8 @@ checkTokenAPI <- function(shiny_access_token=NULL){
   
   if(is.null(shiny_access_token)){
     ## local token
-    token <- Authentication$public_fields$token
-    
+    token <- .auth$cred
+
     if(token_exists() && is_legit_token(token)) {
       myMessage("Valid local token", level = 1)
       return(TRUE)
@@ -205,7 +206,8 @@ checkGoogleAPIError <- function(req){
   if(!is.null(req$headers$`content-type`)){
     ## charset not strictly required so "application/json" 
     ##  doesn't fail "application/json; charset=UTF-8" (#78)
-    if(!(any(startsWith(ok_content_types, req$headers$`content-type`)))) {
+    if(!(any(startsWith(tolower(ok_content_types), 
+                        tolower(req$headers$`content-type`))))) {
       stop(sprintf(paste("Not expecting content-type to be:\n%s"),
                    req$headers[["content-type"]]), call. = FALSE)
       

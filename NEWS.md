@@ -1,3 +1,12 @@
+# googleAuthR v1.0.0
+
+* Implement `library(gargle)` as backend for authentication functions
+* Auto-attempt authentication via `gar_auth()` if an API call has no auth set
+* Remove explicit R6 dependency as imported via `gargle`
+* Enable some customization of `googleSignInUI`'s logout button via `logout_name` and `logout_class` parameters
+* Expose information whether user is signed in via `googleSignIn` module
+* Auto-auth by specifying an email address in `gar_auto_auth()`
+
 # googleAuthR v0.8.1
 
 * Depend on usethis for `create_package()` and `use_github()` as they are

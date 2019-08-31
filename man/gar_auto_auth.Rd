@@ -4,17 +4,17 @@
 \alias{gar_auto_auth}
 \title{Perform auto authentication}
 \usage{
-gar_auto_auth(required_scopes, new_user = FALSE, no_auto = FALSE,
-  environment_var = "GAR_AUTH_FILE")
+gar_auto_auth(required_scopes, no_auto = FALSE,
+  environment_var = "GAR_AUTH_FILE", new_user = NULL)
 }
 \arguments{
 \item{required_scopes}{Required scopes needed to authenticate - needs to match at least one}
 
-\item{new_user}{If TRUE, reauthenticate via Google login screen}
-
 \item{no_auto}{If TRUE, ignore auto-authentication settings}
 
-\item{environment_var}{Name of environment var that contains auth file path
+\item{environment_var}{Name of environment var that contains auth file path}
+
+\item{new_user}{Deprecated, not used
 
 The authentication file can be a \code{.httr-oauth} file created via \link{gar_auth} 
   or a Google service JSON file downloaded from the Google API credential console, 
