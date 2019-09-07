@@ -13,7 +13,7 @@
 
 <meta name="author" content="Mark Edmondson" />
 
-<meta name="date" content="2019-08-31" />
+<meta name="date" content="2019-09-06" />
 
 <title>Advanced Google API building techniques</title>
 
@@ -304,7 +304,7 @@ code > span.fu { color: #900; font-weight: bold; }  code > span.er { color: #a61
 
 <h1 class="title toc-ignore">Advanced Google API building techniques</h1>
 <h4 class="author">Mark Edmondson</h4>
-<h4 class="date">2019-08-31</h4>
+<h4 class="date">2019-09-06</h4>
 
 
 
@@ -605,7 +605,7 @@ code > span.fu { color: #900; font-weight: bold; }  code > span.er { color: #a61
 <h2>Tests</h2>
 <p>All packages should ideally have tests to ensure that any changes do not break functionality.</p>
 <p>If new to testing, first read this guide on using the <code>tidyverse</code>’s <a href="http://testthat.r-lib.org/">testthat</a>, then read this for a <a href="https://juliasilge.com/blog/beginners-guide-to-travis/">beginner’s guide to travis-CI for R</a>, which is a continuous integration system that will run and test your code everytime it is committed to GitHub.</p>
-<p>This is this package’s current Travis badge: <a href="https://travis-ci.org/MarkEdmondson1234/googleAuthR"><img src="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSI3NiIgaGVpZ2h0PSIyMCI+PGxpbmVhckdyYWRpZW50IGlkPSJhIiB4Mj0iMCIgeTI9IjEwMCUiPjxzdG9wIG9mZnNldD0iMCIgc3RvcC1jb2xvcj0iI2JiYiIgc3RvcC1vcGFjaXR5PSIuMSIvPjxzdG9wIG9mZnNldD0iMSIgc3RvcC1vcGFjaXR5PSIuMSIvPjwvbGluZWFyR3JhZGllbnQ+PHJlY3Qgcng9IjMiIHdpZHRoPSI3NiIgaGVpZ2h0PSIyMCIgZmlsbD0iIzU1NSIvPjxyZWN0IHJ4PSIzIiB4PSIzNyIgd2lkdGg9IjM5IiBoZWlnaHQ9IjIwIiBmaWxsPSIjOWY5ZjlmIi8+PHBhdGggZmlsbD0iIzlmOWY5ZiIgZD0iTTM3IDBoNHYyMGgtNHoiLz48cmVjdCByeD0iMyIgd2lkdGg9Ijc2IiBoZWlnaHQ9IjIwIiBmaWxsPSJ1cmwoI2EpIi8+PGcgZmlsbD0iI2ZmZiIgdGV4dC1hbmNob3I9Im1pZGRsZSIgZm9udC1mYW1pbHk9IkRlamFWdSBTYW5zLFZlcmRhbmEsR2VuZXZhLHNhbnMtc2VyaWYiIGZvbnQtc2l6ZT0iMTEiPjx0ZXh0IHg9IjE5LjUiIHk9IjE1IiBmaWxsPSIjMDEwMTAxIiBmaWxsLW9wYWNpdHk9Ii4zIj5idWlsZDwvdGV4dD48dGV4dCB4PSIxOS41IiB5PSIxNCI+YnVpbGQ8L3RleHQ+PHRleHQgeD0iNTUuNSIgeT0iMTUiIGZpbGw9IiMwMTAxMDEiIGZpbGwtb3BhY2l0eT0iLjMiPmVycm9yPC90ZXh0Pjx0ZXh0IHg9IjU1LjUiIHk9IjE0Ij5lcnJvcjwvdGV4dD48L2c+PC9zdmc+" alt="Travis-CI Build Status" /></a></p>
+<p>This is this package’s current Travis badge: <a href="https://travis-ci.org/MarkEdmondson1234/googleAuthR"><img src="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSI5MCIgaGVpZ2h0PSIyMCI+PGxpbmVhckdyYWRpZW50IGlkPSJhIiB4Mj0iMCIgeTI9IjEwMCUiPjxzdG9wIG9mZnNldD0iMCIgc3RvcC1jb2xvcj0iI2JiYiIgc3RvcC1vcGFjaXR5PSIuMSIvPjxzdG9wIG9mZnNldD0iMSIgc3RvcC1vcGFjaXR5PSIuMSIvPjwvbGluZWFyR3JhZGllbnQ+PHJlY3Qgcng9IjMiIHdpZHRoPSI5MCIgaGVpZ2h0PSIyMCIgZmlsbD0iIzU1NSIvPjxyZWN0IHJ4PSIzIiB4PSIzNyIgd2lkdGg9IjUzIiBoZWlnaHQ9IjIwIiBmaWxsPSIjNGMxIi8+PHBhdGggZmlsbD0iIzRjMSIgZD0iTTM3IDBoNHYyMGgtNHoiLz48cmVjdCByeD0iMyIgd2lkdGg9IjkwIiBoZWlnaHQ9IjIwIiBmaWxsPSJ1cmwoI2EpIi8+PGcgZmlsbD0iI2ZmZiIgdGV4dC1hbmNob3I9Im1pZGRsZSIgZm9udC1mYW1pbHk9IkRlamFWdSBTYW5zLFZlcmRhbmEsR2VuZXZhLHNhbnMtc2VyaWYiIGZvbnQtc2l6ZT0iMTEiPjx0ZXh0IHg9IjE5LjUiIHk9IjE1IiBmaWxsPSIjMDEwMTAxIiBmaWxsLW9wYWNpdHk9Ii4zIj5idWlsZDwvdGV4dD48dGV4dCB4PSIxOS41IiB5PSIxNCI+YnVpbGQ8L3RleHQ+PHRleHQgeD0iNjIuNSIgeT0iMTUiIGZpbGw9IiMwMTAxMDEiIGZpbGwtb3BhY2l0eT0iLjMiPnBhc3Npbmc8L3RleHQ+PHRleHQgeD0iNjIuNSIgeT0iMTQiPnBhc3Npbmc8L3RleHQ+PC9nPjwvc3ZnPg==" alt="Travis-CI Build Status" /></a></p>
 <p>However, testing APIs that need authentication is more complicated, as you need to deal with the authentication token to get a correct response.</p>
 <p>One option is to encrypt and upload your token, for which you can read a guide by Jenny Bryan here - <code>https://cran.r-project.org/web/packages/googlesheets/vignettes/managing-auth-tokens.html</code>.</p>
 <div id="mocking-tests-with-httptest" class="section level3">

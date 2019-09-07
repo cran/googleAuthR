@@ -1,3 +1,9 @@
+# googleAuthR v1.1.0
+
+* Add default scope of "https://www.googleapis.com/auth/cloud-platform" to `gar_gce_auth()`
+* Improvements to stop `gar_auto_auth()` block library installation if auth files not correct.
+* Allow to be used by R 3.3 via custom `isFALSE` function (#158 - thanks @matthijsvanderloos)
+
 # googleAuthR v1.0.0
 
 * Implement `library(gargle)` as backend for authentication functions
