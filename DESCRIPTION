@@ -1,6 +1,6 @@
 Package: googleAuthR
 Type: Package
-Version: 1.1.0
+Version: 1.1.1
 Title: Authenticate and Create Google APIs
 Description: Create R functions that interact with OAuth2 Google APIs 
     <https://developers.google.com/apis-explorer/> easily,
@@ -26,7 +26,7 @@ LazyData: true
 VignetteBuilder: knitr
 RoxygenNote: 6.1.1
 NeedsCompilation: no
-Packaged: 2019-09-06 19:01:21 UTC; mark
+Packaged: 2019-09-08 21:54:49 UTC; mark
 Author: Mark Edmondson [aut, cre] (<https://orcid.org/0000-0002-8434-3881>),
   Jennifer Bryan [ctb],
   Johann deBoer [ctb],
@@ -35,4 +35,4 @@ Author: Mark Edmondson [aut, cre] (<https://orcid.org/0000-0002-8434-3881>),
   Joe Cheng [ctb]
 Maintainer: Mark Edmondson <m@sunholo.com>
 Repository: CRAN
-Date/Publication: 2019-09-07 16:00:02 UTC
+Date/Publication: 2019-09-09 08:00:02 UTC
