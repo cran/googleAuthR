@@ -4,12 +4,15 @@
 \alias{gar_shiny_auth_url}
 \title{Make a Google Authorisation URL for Shiny}
 \usage{
-gar_shiny_auth_url(req, state = getOption("googleAuthR.securitycode"),
+gar_shiny_auth_url(
+  req,
+  state = getOption("googleAuthR.securitycode"),
   client.id = getOption("googleAuthR.webapp.client_id"),
   client.secret = getOption("googleAuthR.webapp.client_secret"),
   scope = getOption("googleAuthR.scopes.selected"),
-  access_type = c("online", "offline"), approval_prompt = c("auto",
-  "force"))
+  access_type = c("online", "offline"),
+  prompt = c("consent", "select_account", "both", "none")
+)
 }
 \arguments{
 \item{req}{a Rook request, do not set as this will be used by Shiny to generate URL}
@@ -24,14 +27,16 @@ gar_shiny_auth_url(req, state = getOption("googleAuthR.securitycode"),
 
 \item{access_type}{whether to keep the token}
 
-\item{approval_prompt}{Auto-login if user is recognised or always force signin}
+\item{prompt}{Auto-login if user is recognised or always force signin}
 }
 \description{
 Set this within your login_ui where you need the Google login.
 }
 \seealso{
-Other pre-load shiny authentication: \code{\link{gar_shiny_auth}},
-  \code{\link{gar_shiny_login_ui}},
-  \code{\link{gar_shiny_ui}}, \code{\link{silent_auth}}
+Other pre-load shiny authentication: 
+\code{\link{gar_shiny_auth}()},
+\code{\link{gar_shiny_login_ui}()},
+\code{\link{gar_shiny_ui}()},
+\code{\link{silent_auth}()}
 }
 \concept{pre-load shiny authentication}

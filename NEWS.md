@@ -1,3 +1,16 @@
+# googleAuthR 1.2.0
+
+* Add `gar_scope_config` 
+* Add Docker build available at `gcr.io/gcer-public/googleauthr`
+* More API error feedback if using googleAuthR.verbose < 3
+* Auto-auth should succeed if one of the scopes needed is present
+* Set default scopes to "https://www.googleapis.com/auth/cloud-platform" in `gar_gce_auth`
+* Corrected and clarified `googleSignIn` documentation (#171, @jonthegeek).
+* Fix `gar_debug_parsing()` message
+* Remove deprecated `gar_auth_jsUI` since it causes an issue when used 
+* Add functions `gar_service_*` to provision service accounts via R (#178)
+* Remove OAuth2 login parameter `approval_prompt` as its replaced by `prompt` (#177 - thanks @OuNao/@rasmes/@hugovk)
+
 # googleAuthR v1.1.1
 
 * Allow to be used by R 3.3 via custom `isFALSE` function (#158 - thanks @matthijsvanderloos)
@@ -137,7 +150,6 @@
 
 ## Major changes
 
-* Add link to [example shiny app](https://mark.shinyapps.io/googleAuthRexample/)
 * Add `option(googleAuthR.rawResponse)` - skip API checks on response - should now work
 * A successfull request is now classed as all response codes matching ^20 e.g. 201, 204 etc.
 

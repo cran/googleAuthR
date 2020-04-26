@@ -1,19 +1,18 @@
 <!DOCTYPE html>
 
-<html xmlns="http://www.w3.org/1999/xhtml">
+<html>
 
 <head>
 
 <meta charset="utf-8" />
-<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
 <meta name="generator" content="pandoc" />
 <meta http-equiv="X-UA-Compatible" content="IE=EDGE" />
 
-<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="viewport" content="width=device-width, initial-scale=1" />
 
 <meta name="author" content="Mark Edmondson" />
 
-<meta name="date" content="2019-09-08" />
+<meta name="date" content="2020-04-25" />
 
 <title>Building your own Google R library</title>
 
@@ -118,9 +117,6 @@ padding-right: 2em;
 font-family: "Open Sans", "Helvetica Neue", Helvetica, Arial, sans-serif;
 font-size: 14px;
 line-height: 1.35;
-}
-#header {
-text-align: center;
 }
 #TOC {
 clear: both;
@@ -289,7 +285,8 @@ code > span.st { color: #d14; }
 code > span.co { color: #888888; font-style: italic; } 
 code > span.ot { color: #007020; } 
 code > span.al { color: #ff0000; font-weight: bold; } 
-code > span.fu { color: #900; font-weight: bold; }  code > span.er { color: #a61717; background-color: #e3d2d2; } 
+code > span.fu { color: #900; font-weight: bold; } 
+code > span.er { color: #a61717; background-color: #e3d2d2; } 
 </style>
 
 
@@ -304,7 +301,7 @@ code > span.fu { color: #900; font-weight: bold; }  code > span.er { color: #a61
 
 <h1 class="title toc-ignore">Building your own Google R library</h1>
 <h4 class="author">Mark Edmondson</h4>
-<h4 class="date">2019-09-08</h4>
+<h4 class="date">2020-04-25</h4>
 
 
 
@@ -468,12 +465,12 @@ code > span.fu { color: #900; font-weight: bold; }  code > span.er { color: #a61
 </div>
 <div id="creating-an-api-library-from-scratch---example-with-goo.gl" class="section level2">
 <h2>Creating an API library from scratch - Example with goo.gl</h2>
-<p>Below is an example building a link shortner R package using <code>googleAuthR</code>. It was done referring to the <a href="https://developers.google.com/url-shortener/v1/getting_started">documentation for Google URL shortener</a>. Note the help docs specifies the steps outlined above. These are in general the steps for every Google API.</p>
+<p>Below is an example building a link shortner R package using <code>googleAuthR</code>. It was done referring to the documentation for Google URL shortener. Note the help docs specifies the steps outlined above. These are in general the steps for every Google API.</p>
 <ol style="list-style-type: decimal">
 <li>Creating a project</li>
 <li>Activate API</li>
 <li>Provide scope</li>
-<li>Specify the base URL (in this case <code>https://www.googleapis.com/urlshortener/v1/url</code>)</li>
+<li>Specify the base URL (in this case it was <code>https://www.googleapis.com/urlshortener/v1/url</code>)</li>
 <li>Specify the httr request type e.g. <code>POST</code></li>
 <li>Constructing a body request</li>
 <li>Giving the response format</li>
@@ -517,7 +514,7 @@ code > span.fu { color: #900; font-weight: bold; }  code > span.er { color: #a61
 <a class="sourceLine" id="cb9-35" data-line-number="35">  <span class="kw">f</span>(<span class="dt">pars_arguments =</span> <span class="kw">list</span>(<span class="dt">shortUrl =</span> shortUrl))</a>
 <a class="sourceLine" id="cb9-36" data-line-number="36">  </a>
 <a class="sourceLine" id="cb9-37" data-line-number="37">}</a>
-<a class="sourceLine" id="cb9-38" data-line-number="38"><span class="co">#' Get analyitcs of a url that has used goo.gl</span></a>
+<a class="sourceLine" id="cb9-38" data-line-number="38"><span class="co">#' Get analytics of a url that has used goo.gl</span></a>
 <a class="sourceLine" id="cb9-39" data-line-number="39"><span class="co">#'</span></a>
 <a class="sourceLine" id="cb9-40" data-line-number="40"><span class="co">#' @param shortUrl Url that was shortened with goo.gl</span></a>
 <a class="sourceLine" id="cb9-41" data-line-number="41"><span class="co">#' @param timespan The time period for the analytics data</span></a>
