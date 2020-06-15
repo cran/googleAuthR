@@ -1,4 +1,14 @@
-# googleAuthR 1.2.0
+# googleAuthR 1.3.0
+
+* Let you supply your own URL for discovery documents in `gar_discovery_api()`
+* Change defaults on `gar_create_package()` to check = FALSE, github=FALSE
+* Add class 'list' to `gar_discovery_*()` objects so they work with `jsonlite`
+* Add `gar_service_list()` and `gar_service_get()`
+* If using `gar_service_create()` and it already exists, will return existing via `gar_service_get()`
+* Move the setup wizard functions from `googleCloudRunner` to `googleAuthR` so they are available for all packages.
+* Remove deprecated `new_user` param from `gar_auth()`
+
+# googleAuthR 1.2.1
 
 * Add `gar_scope_config` 
 * Add Docker build available at `gcr.io/gcer-public/googleauthr`

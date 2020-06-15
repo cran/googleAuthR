@@ -32,7 +32,7 @@ gar_service_provision <- function(accountId,
   if(email == ""){
     email <- NULL
   }
-  gar_auth(email = email)
+  gar_auth(email = email, cache = FALSE)
   created <- gar_service_create(accountId, projectId = projectId)
     
   gar_service_grant_roles(created$email,
@@ -52,6 +52,8 @@ gar_service_provision <- function(accountId,
 #' @param serviceName Name of service account
 #' @param serviceDescription Description of service account
 #' 
+#' @return If it already exists, returns it via \link{gar_service_get}, else creates the service key
+#' 
 #' @export
 gar_service_create <- function(
   accountId,
@@ -60,24 +62,37 @@ gar_service_create <- function(
   serviceDescription = "A service account created via googleAuthR"
 ){
   
-  the_url <- sprintf(
-    "https://iam.googleapis.com/v1/projects/%s/serviceAccounts",
-    projectId
-  )
+  candidate <- sprintf("%s@%s.iam.gserviceaccount.com",
+                       accountId, projectId)
   
-  body <- list(
-    accountId = accountId,
-    serviceAccount = list(
-      description = serviceDescription,
-      displayName = serviceName
-    )
-  )
-  
-  myMessage("Creating service accountId - ", accountId, level = 3)
-  api_call <- gar_api_generator(the_url, "POST", 
-                                data_parse_function = function(x) x)
-  
-  api_call(the_body = body)
+  tryCatch(
+    gar_service_get(candidate, projectId = projectId), 
+    error = function(err){
+         need_one <- grepl(paste(candidate, "does not exist"), err$message)
+         if(need_one){
+           myMessage("Creating new service account: ", candidate, level = 3)
+           the_url <- sprintf(
+             "https://iam.googleapis.com/v1/projects/%s/serviceAccounts",
+             projectId
+           )
+           
+           body <- list(
+             accountId = accountId,
+             serviceAccount = list(
+               description = serviceDescription,
+               displayName = serviceName
+             )
+           )
+           
+           myMessage("Creating service accountId - ", accountId, level = 3)
+           api_call <- gar_api_generator(the_url, "POST", 
+                                         data_parse_function = function(x) x)
+           
+           api_call(the_body = body)
+         } else {
+           stop(err$message)
+         }
+      })
   
 }
 
@@ -172,11 +187,16 @@ gar_service_get_roles <- function(projectId){
 #'  gar_auth()
 #'  gar_service_create("test12345678", "my-project")
 #'  
+#'  gar_service_get("test12345678@my-project.iam.gserviceaccount.com", 
+#'                  projectId = "my-project")
+#'  
 #'  gar_service_grant_roles("test12345678@my-project.iam.gserviceaccount.com",
 #'                          role = "roles/editor",
 #'                          projectId = "my-project")
 #'  
 #'  gar_service_key("test12345678", "my-project", "my-auth.json")
+#'  
+#'  gar_service_list("my-project")
 #'  
 #'  gar_service_key_list("test12345678", "my-project")
 #' }
@@ -218,6 +238,33 @@ gar_service_key_list <- function(accountId,
   
   api_call <- gar_api_generator(the_url, "GET", 
                                 data_parse_function = function(x) x$keys)
+  
+  api_call()
+}
+
+#' @rdname gar_service_create
+#' @export
+gar_service_list <- function(projectId){
+  the_url <- sprintf(
+    "https://iam.googleapis.com/v1/projects/%s/serviceAccounts", projectId
+  )
+  
+  api_call <- gar_api_generator(the_url, "GET", 
+                                data_parse_function = function(x) x$accounts)
+  
+  api_call()
+}
+
+#' @rdname gar_service_create
+#' @export
+gar_service_get <- function(accountId, projectId){
+  the_url <- sprintf(
+    "https://iam.googleapis.com/v1/projects/%s/serviceAccounts/%s", 
+    projectId, accountId
+  )
+  
+  api_call <- gar_api_generator(the_url, "GET", 
+                                data_parse_function = function(x) x)
   
   api_call()
 }
