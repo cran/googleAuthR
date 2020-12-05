@@ -1,6 +1,6 @@
 Package: googleAuthR
 Type: Package
-Version: 1.3.0
+Version: 1.3.1
 Title: Authenticate and Create Google APIs
 Description: Create R functions that interact with OAuth2 Google APIs 
     <https://developers.google.com/apis-explorer/> easily,
@@ -13,7 +13,7 @@ Authors@R: c(person("Mark", "Edmondson",email = "m@sunholo.com",
            person("Neal", "Richardson", email="neal.p.richardson@gmail.com", role = "ctb"),
            person("David","Kulp", email="dkulp@cs.umass.edu", role = "ctb"),
            person("Joe","Cheng", email = "joe@rstudio.com", role = "ctb"))
-URL: http://code.markedmondson.me/googleAuthR/
+URL: https://code.markedmondson.me/googleAuthR/
 BugReports: https://github.com/MarkEdmondson1234/googleAuthR/issues
 Depends: R (>= 3.3.0)
 Imports: assertthat (>= 0.2.0), cli (>= 2.0.2), digest, gargle (>=
@@ -28,7 +28,7 @@ LazyData: true
 VignetteBuilder: knitr
 RoxygenNote: 7.1.0
 NeedsCompilation: no
-Packaged: 2020-06-15 18:20:34 UTC; mark
+Packaged: 2020-12-05 21:40:54 UTC; mark
 Author: Mark Edmondson [aut, cre] (<https://orcid.org/0000-0002-8434-3881>),
   Jennifer Bryan [ctb],
   Johann deBoer [ctb],
@@ -37,4 +37,4 @@ Author: Mark Edmondson [aut, cre] (<https://orcid.org/0000-0002-8434-3881>),
   Joe Cheng [ctb]
 Maintainer: Mark Edmondson <m@sunholo.com>
 Repository: CRAN
-Date/Publication: 2020-06-16 00:10:05 UTC
+Date/Publication: 2020-12-05 22:00:03 UTC

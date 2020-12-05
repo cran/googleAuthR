@@ -33,7 +33,6 @@ You will need the OAuth2.0 Client ID JSON from your GCP project via
 You need to authenticate with a user with permission \code{iam.serviceAccounts.create} for the project.  Most often the user is an Owner/Editor
 }
 \examples{
-
 \dontrun{
 
 gar_service_provision("my-service-account", 
@@ -42,4 +41,8 @@ gar_service_provision("my-service-account",
 }
 \seealso{
 \url{https://cloud.google.com/iam/docs/creating-managing-service-accounts#iam-service-accounts-create-rest}
+
+Other IAM functions: 
+\code{\link{gar_service_create}()}
 }
+\concept{IAM functions}

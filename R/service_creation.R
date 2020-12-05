@@ -15,8 +15,8 @@
 #' @seealso \url{https://cloud.google.com/iam/docs/creating-managing-service-accounts#iam-service-accounts-create-rest}
 #' 
 #' @export
+#' @family IAM functions
 #' @examples 
-#' 
 #' \dontrun{
 #' 
 #' gar_service_provision("my-service-account", 
@@ -54,7 +54,10 @@ gar_service_provision <- function(accountId,
 #' 
 #' @return If it already exists, returns it via \link{gar_service_get}, else creates the service key
 #' 
+#' @seealso Combine these functions to provision emails in one step with \link{gar_service_provision}
+#' 
 #' @export
+#' @family IAM functions
 gar_service_create <- function(
   accountId,
   projectId,
@@ -64,11 +67,13 @@ gar_service_create <- function(
   
   candidate <- sprintf("%s@%s.iam.gserviceaccount.com",
                        accountId, projectId)
-  
-  tryCatch(
+
+  o <- tryCatch(
     gar_service_get(candidate, projectId = projectId), 
     error = function(err){
-         need_one <- grepl(paste(candidate, "does not exist"), err$message)
+
+         # watch out if they update the error message #197
+         need_one <- grepl(paste("Not found"), err$message)
          if(need_one){
            myMessage("Creating new service account: ", candidate, level = 3)
            the_url <- sprintf(
@@ -93,6 +98,7 @@ gar_service_create <- function(
            stop(err$message)
          }
       })
+  o
   
 }
 

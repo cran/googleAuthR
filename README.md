@@ -39,7 +39,7 @@ Use it within your own function definitions, to query the Google API you want.
 
 Auto-build libraries for Google APIs with OAuth2 for both local and Shiny app use.
 
-Get more details at the [googleAuthR website](http://code.markedmondson.me/googleAuthR/)
+Get more details at the [googleAuthR website](https://code.markedmondson.me/googleAuthR/)
 
 The [`googleAuthRverse`](https://googleauthrverse.slack.com) Slack team has been setup for support for using `googleAuthR` and the libraries it helps create.  Sign up via this [Google form](https://goo.gl/forms/d541yrJoDFMrrSJp1) to get access. 
 
@@ -66,8 +66,8 @@ Feel free to add your own via email or a pull request if you have used googleAut
 ## Thanks to
 
 * Jenny Bryan and her work on the [googlesheets](https://github.com/jennybc/googlesheets) package that this work derives from.
-* Hadley Wickham for [httr's OAuth2](https://github.com/hadley/httr) excellence
-* RStudio team for [Shiny](http://shiny.rstudio.com/)
+* Hadley Wickham for [httr's OAuth2](https://github.com/r-lib/httr) excellence
+* RStudio team for [Shiny](https://shiny.rstudio.com/)
 * [Johann de Boer](https://github.com/jdeboer) for some code contributions.
 
 ## Install
