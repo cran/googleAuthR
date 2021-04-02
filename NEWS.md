@@ -1,3 +1,11 @@
+# googleAuthR 1.4.0
+
+* Fix batching when response has a blank line in first line
+* Retry on 408 status codes (#199)
+* Add filter down to roles for one accountId in `gar_service_get_roles()`
+* Prettier startup messages via `cli`
+* Make setup flow easier without needing so many R restarts
+
 # googleAuthR 1.3.1
 
 * Fix `gar_set_client()` returning web-project id if expecting project id and both env arguments are set.

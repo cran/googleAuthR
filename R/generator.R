@@ -112,6 +112,7 @@ gar_api_generator <- function(baseURI,
     with_shiny_env <- which(grepl("with_shiny", all_envs))
     ## gets the arguments of with_shiny
     if(any(with_shiny_env)){
+      warning("with_shiny() will be removed soon.  Replace with new Shiny auth functions detailed on the googleAuthR website")
       call_args <- as.list(match.call(definition = sys.function(with_shiny_env),
                                       call = sys.call(with_shiny_env),
                                       expand.dots = FALSE)[-1])
@@ -293,7 +294,7 @@ retryRequest <- function(f){
 
     myMessage("API returned error: ",paste(error), level = 2)
 
-    if(grepl("^5|429",status_code)){
+    if(grepl("^5|429|408",status_code)){
       try_attempts <- getOption("googleAuthR.tryAttempts")
       for(i in 1:try_attempts){
         myMessage("Trying again: ", i, " of ", try_attempts, level = 3)
