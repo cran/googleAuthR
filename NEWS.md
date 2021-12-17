@@ -1,3 +1,8 @@
+# googleAuthR 1.4.1
+
+* Fix `gar_service_create()` and dependent functions since error message changed for service email (#197)
+* Better error if `gar_service_get_roles()` finds no roles
+
 # googleAuthR 1.4.0
 
 * Fix batching when response has a blank line in first line
