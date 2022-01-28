@@ -128,13 +128,11 @@ token_exists <- function() {
 
 #' Check API data token
 #'
-#' @param shiny_access_token auth token
-#'
 #' @return boolean if it works.
 #'
 #' @keywords internal
 #' @family data fetching functions
-checkTokenAPI <- function(shiny_access_token=NULL){
+checkTokenAPI <- function(){
   
   if(any(which(grepl("with_mock_API", 
                      as.character(sys.calls()), ignore.case = FALSE)))){
@@ -147,27 +145,15 @@ checkTokenAPI <- function(shiny_access_token=NULL){
     return(TRUE)
   }
   
-  if(is.null(shiny_access_token)){
-    ## local token
-    token <- .auth$cred
-
-    if(token_exists() && is_legit_token(token)) {
-      myMessage("Valid local token", level = 1)
-      return(TRUE)
-    } else {
-      myMessage("Invalid local token", level = 1)
-      return(FALSE)
-    }
-    
+  ## local token
+  token <- .auth$cred
+  
+  if(token_exists() && is_legit_token(token)) {
+    myMessage("Valid local token", level = 1)
+    return(TRUE)
   } else {
-    ## is it a valid shiny token passed?
-    if(is_legit_token(shiny_access_token)){
-      myMessage("Valid Shiny token", level = 1)
-      return(TRUE)
-    } else {
-      myMessage("Invalid Shiny token", level = 1)
-      return(FALSE)
-    }
+    myMessage("Invalid local token", level = 1)
+    return(FALSE)
   }
   
 }

@@ -65,8 +65,7 @@ gar_batch <- function(function_list,
   
   parsed <- paste(c(parse_list, "--gar_batch--"), collapse="")
   
-  l <- list(parsed = parsed,
-            shiny_access_token = function_list[[1]]$shiny_access_token)
+  l <- list(parsed = parsed)
   
   ## call doHttrRequest with batched together functions
   cached_call <- !is.null(gar_cache_get_loc())
@@ -419,7 +418,7 @@ doBatchRequest <- function(batched,
   }
   
   arg_list <- list(url = batch_endpoint, 
-                   config = get_google_token(batched$shiny_access_token), 
+                   config = get_google_token(), 
                    body = batched$parsed,
                    encode = "multipart",
                    add_headers("Accept-Encoding" = "gzip"),

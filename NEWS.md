@@ -1,3 +1,8 @@
+# googleAuthR 2.0.0
+
+* Removed `with_shiny()` and `googleAuth` modules that have been deprecated for a while -use `gar_shiny_*` instead.
+* Improved error handling with custom http errors
+
 # googleAuthR 1.4.1
 
 * Fix `gar_service_create()` and dependent functions since error message changed for service email (#197)
