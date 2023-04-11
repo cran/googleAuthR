@@ -1,3 +1,8 @@
+# 2.0.1
+
+* fix `gar_gce_auth_email()`
+* Remove travis links as they broke CRAN
+
 # googleAuthR 2.0.0
 
 * Removed `with_shiny()` and `googleAuth` modules that have been deprecated for a while -use `gar_shiny_*` instead.
