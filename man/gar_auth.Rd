@@ -26,7 +26,7 @@ gar_auth(
 
 \item{cache}{Where to store authentication tokens}
 
-\item{use_oob}{Whther to use OOB browserless authetication}
+\item{use_oob}{Whether to use OOB browserless authentication}
 
 \item{package}{The name of the package authenticating}
 }
@@ -69,6 +69,7 @@ Other authentication functions:
 \code{\link{gar_auto_auth}()},
 \code{\link{gar_gce_auth}()},
 \code{\link{get_google_token}()},
+\code{\link{should_skip_token_checks}()},
 \code{\link{token_exists}()}
 }
 \concept{authentication functions}

@@ -12,7 +12,7 @@
 
 <meta name="author" content="Mark Edmondson" />
 
-<meta name="date" content="2023-04-11" />
+<meta name="date" content="2024-05-22" />
 
 <title>Advanced Google API building techniques</title>
 
@@ -51,7 +51,7 @@ overflow: visible;
 </style>
 <style type="text/css" data-origin="pandoc">
 pre > code.sourceCode { white-space: pre; position: relative; }
-pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+pre > code.sourceCode > span { line-height: 1.25; }
 pre > code.sourceCode > span:empty { height: 1.2em; }
 .sourceCode { overflow: visible; }
 code.sourceCode > span { color: inherit; text-decoration: inherit; }
@@ -341,7 +341,7 @@ code > span.er { color: #a61717; background-color: #e3d2d2; }
 <h1 class="title toc-ignore">Advanced Google API building
 techniques</h1>
 <h4 class="author">Mark Edmondson</h4>
-<h4 class="date">2023-04-11</h4>
+<h4 class="date">2024-05-22</h4>
 
 
 
@@ -382,62 +382,62 @@ each call.</li>
 </ol>
 <p>An example of the two approaches can be shown below on a Google
 Analytics segments API response. Both provide equivalent output.</p>
-<div class="sourceCode" id="cb1"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="co"># demos the two methods for the same function.</span></span>
-<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="co"># The example is for the Google Analytics management API, </span></span>
-<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a><span class="co">#  you need to authenticate with that to run them. </span></span>
-<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a> </span>
-<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a><span class="co"># paging by using nextLink that is returned in API response</span></span>
-<span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a>ga_segment_list1 <span class="ot">&lt;-</span> <span class="cf">function</span>(){</span>
-<span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a> </span>
-<span id="cb1-9"><a href="#cb1-9" aria-hidden="true" tabindex="-1"></a><span class="co"># this URL will be modified by using the url_override argument in the generated function</span></span>
-<span id="cb1-10"><a href="#cb1-10" aria-hidden="true" tabindex="-1"></a>segs <span class="ot">&lt;-</span> <span class="fu">gar_api_generator</span>(<span class="st">&quot;https://www.googleapis.com/analytics/v3/management/segments&quot;</span>,</span>
-<span id="cb1-11"><a href="#cb1-11" aria-hidden="true" tabindex="-1"></a>                             <span class="st">&quot;GET&quot;</span>,</span>
-<span id="cb1-12"><a href="#cb1-12" aria-hidden="true" tabindex="-1"></a>                             <span class="at">pars_args =</span> <span class="fu">list</span>(<span class="st">&quot;max-results&quot;</span><span class="ot">=</span><span class="dv">10</span>),</span>
-<span id="cb1-13"><a href="#cb1-13" aria-hidden="true" tabindex="-1"></a>                             <span class="at">data_parse_function =</span> <span class="cf">function</span>(x) x)</span>
-<span id="cb1-14"><a href="#cb1-14" aria-hidden="true" tabindex="-1"></a>                          </span>
-<span id="cb1-15"><a href="#cb1-15" aria-hidden="true" tabindex="-1"></a>                          </span>
-<span id="cb1-16"><a href="#cb1-16" aria-hidden="true" tabindex="-1"></a>   <span class="fu">gar_api_page</span>(segs, </span>
-<span id="cb1-17"><a href="#cb1-17" aria-hidden="true" tabindex="-1"></a>                <span class="at">page_method =</span> <span class="st">&quot;url&quot;</span>,</span>
-<span id="cb1-18"><a href="#cb1-18" aria-hidden="true" tabindex="-1"></a>                <span class="at">page_f =</span> <span class="cf">function</span>(x) x<span class="sc">$</span>nextLink)</span>
-<span id="cb1-19"><a href="#cb1-19" aria-hidden="true" tabindex="-1"></a> </span>
-<span id="cb1-20"><a href="#cb1-20" aria-hidden="true" tabindex="-1"></a>}</span>
-<span id="cb1-21"><a href="#cb1-21" aria-hidden="true" tabindex="-1"></a> </span>
-<span id="cb1-22"><a href="#cb1-22" aria-hidden="true" tabindex="-1"></a><span class="co"># paging by looking for the next start-index parameter</span></span>
-<span id="cb1-23"><a href="#cb1-23" aria-hidden="true" tabindex="-1"></a> </span>
-<span id="cb1-24"><a href="#cb1-24" aria-hidden="true" tabindex="-1"></a><span class="do">## start by creating the function that will output the correct start-index</span></span>
-<span id="cb1-25"><a href="#cb1-25" aria-hidden="true" tabindex="-1"></a>paging_function <span class="ot">&lt;-</span> <span class="cf">function</span>(x){</span>
-<span id="cb1-26"><a href="#cb1-26" aria-hidden="true" tabindex="-1"></a>   next_entry <span class="ot">&lt;-</span> x<span class="sc">$</span>startIndex <span class="sc">+</span> x<span class="sc">$</span>itemsPerPage</span>
-<span id="cb1-27"><a href="#cb1-27" aria-hidden="true" tabindex="-1"></a> </span>
-<span id="cb1-28"><a href="#cb1-28" aria-hidden="true" tabindex="-1"></a>   <span class="co"># we have all results e.g. 1001 &gt; 1000</span></span>
-<span id="cb1-29"><a href="#cb1-29" aria-hidden="true" tabindex="-1"></a>   <span class="cf">if</span>(next_entry <span class="sc">&gt;</span> x<span class="sc">$</span>totalResults){</span>
-<span id="cb1-30"><a href="#cb1-30" aria-hidden="true" tabindex="-1"></a>     <span class="fu">return</span>(<span class="cn">NULL</span>)</span>
-<span id="cb1-31"><a href="#cb1-31" aria-hidden="true" tabindex="-1"></a>   }</span>
-<span id="cb1-32"><a href="#cb1-32" aria-hidden="true" tabindex="-1"></a> </span>
-<span id="cb1-33"><a href="#cb1-33" aria-hidden="true" tabindex="-1"></a>   next_entry</span>
-<span id="cb1-34"><a href="#cb1-34" aria-hidden="true" tabindex="-1"></a>   }</span>
-<span id="cb1-35"><a href="#cb1-35" aria-hidden="true" tabindex="-1"></a>   </span>
-<span id="cb1-36"><a href="#cb1-36" aria-hidden="true" tabindex="-1"></a><span class="do">## remember to add the paging argument (start-index) to the generated function too, </span></span>
-<span id="cb1-37"><a href="#cb1-37" aria-hidden="true" tabindex="-1"></a><span class="do">##  so it can be modified.    </span></span>
-<span id="cb1-38"><a href="#cb1-38" aria-hidden="true" tabindex="-1"></a>ga_segment_list2 <span class="ot">&lt;-</span> <span class="cf">function</span>(){</span>
-<span id="cb1-39"><a href="#cb1-39" aria-hidden="true" tabindex="-1"></a> </span>
-<span id="cb1-40"><a href="#cb1-40" aria-hidden="true" tabindex="-1"></a> segs <span class="ot">&lt;-</span> <span class="fu">gar_api_generator</span>(<span class="st">&quot;https://www.googleapis.com/analytics/v3/management/segments&quot;</span>,</span>
-<span id="cb1-41"><a href="#cb1-41" aria-hidden="true" tabindex="-1"></a>                            <span class="st">&quot;GET&quot;</span>,</span>
-<span id="cb1-42"><a href="#cb1-42" aria-hidden="true" tabindex="-1"></a>                             <span class="at">pars_args =</span> <span class="fu">list</span>(<span class="st">&quot;start-index&quot;</span> <span class="ot">=</span> <span class="dv">1</span>,</span>
-<span id="cb1-43"><a href="#cb1-43" aria-hidden="true" tabindex="-1"></a>                                              <span class="st">&quot;max-results&quot;</span><span class="ot">=</span><span class="dv">10</span>),</span>
-<span id="cb1-44"><a href="#cb1-44" aria-hidden="true" tabindex="-1"></a>                             <span class="at">data_parse_function =</span> <span class="cf">function</span>(x) x)</span>
-<span id="cb1-45"><a href="#cb1-45" aria-hidden="true" tabindex="-1"></a>                            </span>
-<span id="cb1-46"><a href="#cb1-46" aria-hidden="true" tabindex="-1"></a>   <span class="fu">gar_api_page</span>(segs, </span>
-<span id="cb1-47"><a href="#cb1-47" aria-hidden="true" tabindex="-1"></a>                <span class="at">page_method =</span> <span class="st">&quot;param&quot;</span>,</span>
-<span id="cb1-48"><a href="#cb1-48" aria-hidden="true" tabindex="-1"></a>                <span class="at">page_f =</span> paging_function,</span>
-<span id="cb1-49"><a href="#cb1-49" aria-hidden="true" tabindex="-1"></a>                <span class="at">page_arg =</span> <span class="st">&quot;start-index&quot;</span>)</span>
-<span id="cb1-50"><a href="#cb1-50" aria-hidden="true" tabindex="-1"></a> </span>
-<span id="cb1-51"><a href="#cb1-51" aria-hidden="true" tabindex="-1"></a>   }</span>
-<span id="cb1-52"><a href="#cb1-52" aria-hidden="true" tabindex="-1"></a> </span>
-<span id="cb1-53"><a href="#cb1-53" aria-hidden="true" tabindex="-1"></a> </span>
-<span id="cb1-54"><a href="#cb1-54" aria-hidden="true" tabindex="-1"></a> <span class="fu">identical</span>(<span class="fu">ga_segment_list1</span>(), <span class="fu">ga_segment_list2</span>())</span>
-<span id="cb1-55"><a href="#cb1-55" aria-hidden="true" tabindex="-1"></a> </span>
-<span id="cb1-56"><a href="#cb1-56" aria-hidden="true" tabindex="-1"></a> <span class="er">}</span></span></code></pre></div>
+<div class="sourceCode" id="cb1"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" tabindex="-1"></a><span class="co"># demos the two methods for the same function.</span></span>
+<span id="cb1-2"><a href="#cb1-2" tabindex="-1"></a><span class="co"># The example is for the Google Analytics management API, </span></span>
+<span id="cb1-3"><a href="#cb1-3" tabindex="-1"></a><span class="co">#  you need to authenticate with that to run them. </span></span>
+<span id="cb1-4"><a href="#cb1-4" tabindex="-1"></a> </span>
+<span id="cb1-5"><a href="#cb1-5" tabindex="-1"></a></span>
+<span id="cb1-6"><a href="#cb1-6" tabindex="-1"></a><span class="co"># paging by using nextLink that is returned in API response</span></span>
+<span id="cb1-7"><a href="#cb1-7" tabindex="-1"></a>ga_segment_list1 <span class="ot">&lt;-</span> <span class="cf">function</span>(){</span>
+<span id="cb1-8"><a href="#cb1-8" tabindex="-1"></a> </span>
+<span id="cb1-9"><a href="#cb1-9" tabindex="-1"></a><span class="co"># this URL will be modified by using the url_override argument in the generated function</span></span>
+<span id="cb1-10"><a href="#cb1-10" tabindex="-1"></a>segs <span class="ot">&lt;-</span> <span class="fu">gar_api_generator</span>(<span class="st">&quot;https://www.googleapis.com/analytics/v3/management/segments&quot;</span>,</span>
+<span id="cb1-11"><a href="#cb1-11" tabindex="-1"></a>                             <span class="st">&quot;GET&quot;</span>,</span>
+<span id="cb1-12"><a href="#cb1-12" tabindex="-1"></a>                             <span class="at">pars_args =</span> <span class="fu">list</span>(<span class="st">&quot;max-results&quot;</span><span class="ot">=</span><span class="dv">10</span>),</span>
+<span id="cb1-13"><a href="#cb1-13" tabindex="-1"></a>                             <span class="at">data_parse_function =</span> <span class="cf">function</span>(x) x)</span>
+<span id="cb1-14"><a href="#cb1-14" tabindex="-1"></a>                          </span>
+<span id="cb1-15"><a href="#cb1-15" tabindex="-1"></a>                          </span>
+<span id="cb1-16"><a href="#cb1-16" tabindex="-1"></a>   <span class="fu">gar_api_page</span>(segs, </span>
+<span id="cb1-17"><a href="#cb1-17" tabindex="-1"></a>                <span class="at">page_method =</span> <span class="st">&quot;url&quot;</span>,</span>
+<span id="cb1-18"><a href="#cb1-18" tabindex="-1"></a>                <span class="at">page_f =</span> <span class="cf">function</span>(x) x<span class="sc">$</span>nextLink)</span>
+<span id="cb1-19"><a href="#cb1-19" tabindex="-1"></a> </span>
+<span id="cb1-20"><a href="#cb1-20" tabindex="-1"></a>}</span>
+<span id="cb1-21"><a href="#cb1-21" tabindex="-1"></a> </span>
+<span id="cb1-22"><a href="#cb1-22" tabindex="-1"></a><span class="co"># paging by looking for the next start-index parameter</span></span>
+<span id="cb1-23"><a href="#cb1-23" tabindex="-1"></a> </span>
+<span id="cb1-24"><a href="#cb1-24" tabindex="-1"></a><span class="do">## start by creating the function that will output the correct start-index</span></span>
+<span id="cb1-25"><a href="#cb1-25" tabindex="-1"></a>paging_function <span class="ot">&lt;-</span> <span class="cf">function</span>(x){</span>
+<span id="cb1-26"><a href="#cb1-26" tabindex="-1"></a>   next_entry <span class="ot">&lt;-</span> x<span class="sc">$</span>startIndex <span class="sc">+</span> x<span class="sc">$</span>itemsPerPage</span>
+<span id="cb1-27"><a href="#cb1-27" tabindex="-1"></a> </span>
+<span id="cb1-28"><a href="#cb1-28" tabindex="-1"></a>   <span class="co"># we have all results e.g. 1001 &gt; 1000</span></span>
+<span id="cb1-29"><a href="#cb1-29" tabindex="-1"></a>   <span class="cf">if</span>(next_entry <span class="sc">&gt;</span> x<span class="sc">$</span>totalResults){</span>
+<span id="cb1-30"><a href="#cb1-30" tabindex="-1"></a>     <span class="fu">return</span>(<span class="cn">NULL</span>)</span>
+<span id="cb1-31"><a href="#cb1-31" tabindex="-1"></a>   }</span>
+<span id="cb1-32"><a href="#cb1-32" tabindex="-1"></a> </span>
+<span id="cb1-33"><a href="#cb1-33" tabindex="-1"></a>   next_entry</span>
+<span id="cb1-34"><a href="#cb1-34" tabindex="-1"></a>   }</span>
+<span id="cb1-35"><a href="#cb1-35" tabindex="-1"></a>   </span>
+<span id="cb1-36"><a href="#cb1-36" tabindex="-1"></a><span class="do">## remember to add the paging argument (start-index) to the generated function too, </span></span>
+<span id="cb1-37"><a href="#cb1-37" tabindex="-1"></a><span class="do">##  so it can be modified.    </span></span>
+<span id="cb1-38"><a href="#cb1-38" tabindex="-1"></a>ga_segment_list2 <span class="ot">&lt;-</span> <span class="cf">function</span>(){</span>
+<span id="cb1-39"><a href="#cb1-39" tabindex="-1"></a> </span>
+<span id="cb1-40"><a href="#cb1-40" tabindex="-1"></a> segs <span class="ot">&lt;-</span> <span class="fu">gar_api_generator</span>(<span class="st">&quot;https://www.googleapis.com/analytics/v3/management/segments&quot;</span>,</span>
+<span id="cb1-41"><a href="#cb1-41" tabindex="-1"></a>                            <span class="st">&quot;GET&quot;</span>,</span>
+<span id="cb1-42"><a href="#cb1-42" tabindex="-1"></a>                             <span class="at">pars_args =</span> <span class="fu">list</span>(<span class="st">&quot;start-index&quot;</span> <span class="ot">=</span> <span class="dv">1</span>,</span>
+<span id="cb1-43"><a href="#cb1-43" tabindex="-1"></a>                                              <span class="st">&quot;max-results&quot;</span><span class="ot">=</span><span class="dv">10</span>),</span>
+<span id="cb1-44"><a href="#cb1-44" tabindex="-1"></a>                             <span class="at">data_parse_function =</span> <span class="cf">function</span>(x) x)</span>
+<span id="cb1-45"><a href="#cb1-45" tabindex="-1"></a>                            </span>
+<span id="cb1-46"><a href="#cb1-46" tabindex="-1"></a>   <span class="fu">gar_api_page</span>(segs, </span>
+<span id="cb1-47"><a href="#cb1-47" tabindex="-1"></a>                <span class="at">page_method =</span> <span class="st">&quot;param&quot;</span>,</span>
+<span id="cb1-48"><a href="#cb1-48" tabindex="-1"></a>                <span class="at">page_f =</span> paging_function,</span>
+<span id="cb1-49"><a href="#cb1-49" tabindex="-1"></a>                <span class="at">page_arg =</span> <span class="st">&quot;start-index&quot;</span>)</span>
+<span id="cb1-50"><a href="#cb1-50" tabindex="-1"></a> </span>
+<span id="cb1-51"><a href="#cb1-51" tabindex="-1"></a>   }</span>
+<span id="cb1-52"><a href="#cb1-52" tabindex="-1"></a> </span>
+<span id="cb1-53"><a href="#cb1-53" tabindex="-1"></a> </span>
+<span id="cb1-54"><a href="#cb1-54" tabindex="-1"></a> <span class="fu">identical</span>(<span class="fu">ga_segment_list1</span>(), <span class="fu">ga_segment_list2</span>())</span>
+<span id="cb1-55"><a href="#cb1-55" tabindex="-1"></a> </span>
+<span id="cb1-56"><a href="#cb1-56" tabindex="-1"></a> <span class="er">}</span></span></code></pre></div>
 </div>
 <div id="skip-parsing" class="section level2">
 <h2>Skip parsing</h2>
@@ -447,22 +447,22 @@ perhaps if it is not JSON or some other reason.</p>
 <code>options(&quot;googleAuthR.rawResponse&quot; = TRUE)</code> to skip all tests
 and return the raw response.</p>
 <p>Here is an example of this from the googleCloudStorageR library:</p>
-<div class="sourceCode" id="cb2"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a>gcs_get_object <span class="ot">&lt;-</span> <span class="cf">function</span>(bucket, </span>
-<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a>                           object_name){</span>
-<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a>  <span class="do">## skip JSON parsing on output as we expect a CSV</span></span>
-<span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">options</span>(<span class="at">googleAuthR.rawResponse =</span> <span class="cn">TRUE</span>)</span>
-<span id="cb2-5"><a href="#cb2-5" aria-hidden="true" tabindex="-1"></a>  </span>
-<span id="cb2-6"><a href="#cb2-6" aria-hidden="true" tabindex="-1"></a>  <span class="do">## do the request</span></span>
-<span id="cb2-7"><a href="#cb2-7" aria-hidden="true" tabindex="-1"></a>  ob <span class="ot">&lt;-</span> googleAuthR<span class="sc">::</span><span class="fu">gar_api_generator</span>(<span class="st">&quot;https://www.googleapis.com/storage/v1/&quot;</span>,</span>
-<span id="cb2-8"><a href="#cb2-8" aria-hidden="true" tabindex="-1"></a>                                       <span class="at">path_args =</span> <span class="fu">list</span>(<span class="at">b =</span> bucket,</span>
-<span id="cb2-9"><a href="#cb2-9" aria-hidden="true" tabindex="-1"></a>                                                        <span class="at">o =</span> object_name),</span>
-<span id="cb2-10"><a href="#cb2-10" aria-hidden="true" tabindex="-1"></a>                                       <span class="at">pars_args =</span> <span class="fu">list</span>(<span class="at">alt =</span> <span class="st">&quot;media&quot;</span>))</span>
-<span id="cb2-11"><a href="#cb2-11" aria-hidden="true" tabindex="-1"></a>  req <span class="ot">&lt;-</span> <span class="fu">ob</span>()</span>
-<span id="cb2-12"><a href="#cb2-12" aria-hidden="true" tabindex="-1"></a>  </span>
-<span id="cb2-13"><a href="#cb2-13" aria-hidden="true" tabindex="-1"></a>  <span class="do">## set it back to FALSE for other API calls.</span></span>
-<span id="cb2-14"><a href="#cb2-14" aria-hidden="true" tabindex="-1"></a>  <span class="fu">options</span>(<span class="at">googleAuthR.rawResponse =</span> <span class="cn">FALSE</span>)</span>
-<span id="cb2-15"><a href="#cb2-15" aria-hidden="true" tabindex="-1"></a>  req</span>
-<span id="cb2-16"><a href="#cb2-16" aria-hidden="true" tabindex="-1"></a>}</span></code></pre></div>
+<div class="sourceCode" id="cb2"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1" tabindex="-1"></a>gcs_get_object <span class="ot">&lt;-</span> <span class="cf">function</span>(bucket, </span>
+<span id="cb2-2"><a href="#cb2-2" tabindex="-1"></a>                           object_name){</span>
+<span id="cb2-3"><a href="#cb2-3" tabindex="-1"></a>  <span class="do">## skip JSON parsing on output as we expect a CSV</span></span>
+<span id="cb2-4"><a href="#cb2-4" tabindex="-1"></a>  <span class="fu">options</span>(<span class="at">googleAuthR.rawResponse =</span> <span class="cn">TRUE</span>)</span>
+<span id="cb2-5"><a href="#cb2-5" tabindex="-1"></a>  </span>
+<span id="cb2-6"><a href="#cb2-6" tabindex="-1"></a>  <span class="do">## do the request</span></span>
+<span id="cb2-7"><a href="#cb2-7" tabindex="-1"></a>  ob <span class="ot">&lt;-</span> googleAuthR<span class="sc">::</span><span class="fu">gar_api_generator</span>(<span class="st">&quot;https://www.googleapis.com/storage/v1/&quot;</span>,</span>
+<span id="cb2-8"><a href="#cb2-8" tabindex="-1"></a>                                       <span class="at">path_args =</span> <span class="fu">list</span>(<span class="at">b =</span> bucket,</span>
+<span id="cb2-9"><a href="#cb2-9" tabindex="-1"></a>                                                        <span class="at">o =</span> object_name),</span>
+<span id="cb2-10"><a href="#cb2-10" tabindex="-1"></a>                                       <span class="at">pars_args =</span> <span class="fu">list</span>(<span class="at">alt =</span> <span class="st">&quot;media&quot;</span>))</span>
+<span id="cb2-11"><a href="#cb2-11" tabindex="-1"></a>  req <span class="ot">&lt;-</span> <span class="fu">ob</span>()</span>
+<span id="cb2-12"><a href="#cb2-12" tabindex="-1"></a>  </span>
+<span id="cb2-13"><a href="#cb2-13" tabindex="-1"></a>  <span class="do">## set it back to FALSE for other API calls.</span></span>
+<span id="cb2-14"><a href="#cb2-14" tabindex="-1"></a>  <span class="fu">options</span>(<span class="at">googleAuthR.rawResponse =</span> <span class="cn">FALSE</span>)</span>
+<span id="cb2-15"><a href="#cb2-15" tabindex="-1"></a>  req</span>
+<span id="cb2-16"><a href="#cb2-16" tabindex="-1"></a>}</span></code></pre></div>
 </div>
 <div id="batching-api-requests" class="section level2">
 <h2>Batching API requests</h2>
@@ -481,7 +481,7 @@ multiple APIs in one call.</p>
 <p>The batch endpoint is usually of the form:</p>
 <p><code>www.googleapis.com/batch/api-name/api-version</code></p>
 <p>e.g. For BigQuery, the option is:</p>
-<div class="sourceCode" id="cb3"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="fu">options</span>(<span class="at">googleAuthR.batch_endpoint =</span> <span class="st">&quot;https://www.googleapis.com/batch/bigquery/v2&quot;</span>)</span></code></pre></div>
+<div class="sourceCode" id="cb3"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1" tabindex="-1"></a><span class="fu">options</span>(<span class="at">googleAuthR.batch_endpoint =</span> <span class="st">&quot;https://www.googleapis.com/batch/bigquery/v2&quot;</span>)</span></code></pre></div>
 <div id="working-with-batching" class="section level4">
 <h4>Working with batching</h4>
 <p>Batching is done via the <code>gar_batch()</code> function. This
@@ -492,37 +492,37 @@ is an example</a> for the Google Analytics management API, but its very
 standard for all the APIs that support batching. If however it doesn’t
 have a batching section in its docs, it is likely that the API does not
 support batching.</p>
-<div class="sourceCode" id="cb4"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="do">## usually set on package load</span></span>
-<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a><span class="fu">options</span>(<span class="at">googleAuthR.batch_endpoint =</span> <span class="st">&quot;https://www.googleapis.com/batch/urlshortener/v1&quot;</span>)</span>
-<span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb4-4"><a href="#cb4-4" aria-hidden="true" tabindex="-1"></a><span class="do">## from goo.gl API</span></span>
-<span id="cb4-5"><a href="#cb4-5" aria-hidden="true" tabindex="-1"></a>shorten_url <span class="ot">&lt;-</span> <span class="cf">function</span>(url){</span>
-<span id="cb4-6"><a href="#cb4-6" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb4-7"><a href="#cb4-7" aria-hidden="true" tabindex="-1"></a>  body <span class="ot">=</span> <span class="fu">list</span>(</span>
-<span id="cb4-8"><a href="#cb4-8" aria-hidden="true" tabindex="-1"></a>    <span class="at">longUrl =</span> url</span>
-<span id="cb4-9"><a href="#cb4-9" aria-hidden="true" tabindex="-1"></a>  )</span>
-<span id="cb4-10"><a href="#cb4-10" aria-hidden="true" tabindex="-1"></a>  </span>
-<span id="cb4-11"><a href="#cb4-11" aria-hidden="true" tabindex="-1"></a>  f <span class="ot">&lt;-</span> <span class="fu">gar_api_generator</span>(<span class="st">&quot;https://www.googleapis.com/urlshortener/v1/url&quot;</span>,</span>
-<span id="cb4-12"><a href="#cb4-12" aria-hidden="true" tabindex="-1"></a>                         <span class="st">&quot;POST&quot;</span>,</span>
-<span id="cb4-13"><a href="#cb4-13" aria-hidden="true" tabindex="-1"></a>                         <span class="at">data_parse_function =</span> <span class="cf">function</span>(x) x<span class="sc">$</span>id)</span>
-<span id="cb4-14"><a href="#cb4-14" aria-hidden="true" tabindex="-1"></a>  </span>
-<span id="cb4-15"><a href="#cb4-15" aria-hidden="true" tabindex="-1"></a>  <span class="fu">f</span>(<span class="at">the_body =</span> body)</span>
-<span id="cb4-16"><a href="#cb4-16" aria-hidden="true" tabindex="-1"></a>  </span>
-<span id="cb4-17"><a href="#cb4-17" aria-hidden="true" tabindex="-1"></a>}</span>
-<span id="cb4-18"><a href="#cb4-18" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb4-19"><a href="#cb4-19" aria-hidden="true" tabindex="-1"></a><span class="do">## from goo.gl API</span></span>
-<span id="cb4-20"><a href="#cb4-20" aria-hidden="true" tabindex="-1"></a>user_history <span class="ot">&lt;-</span> <span class="cf">function</span>(){</span>
-<span id="cb4-21"><a href="#cb4-21" aria-hidden="true" tabindex="-1"></a>  f <span class="ot">&lt;-</span> <span class="fu">gar_api_generator</span>(<span class="st">&quot;https://www.googleapis.com/urlshortener/v1/url/history&quot;</span>,</span>
-<span id="cb4-22"><a href="#cb4-22" aria-hidden="true" tabindex="-1"></a>                         <span class="st">&quot;GET&quot;</span>,</span>
-<span id="cb4-23"><a href="#cb4-23" aria-hidden="true" tabindex="-1"></a>                         <span class="at">data_parse_function =</span> <span class="cf">function</span>(x) x<span class="sc">$</span>items)</span>
-<span id="cb4-24"><a href="#cb4-24" aria-hidden="true" tabindex="-1"></a>  </span>
-<span id="cb4-25"><a href="#cb4-25" aria-hidden="true" tabindex="-1"></a>  <span class="fu">f</span>()</span>
-<span id="cb4-26"><a href="#cb4-26" aria-hidden="true" tabindex="-1"></a>}</span>
-<span id="cb4-27"><a href="#cb4-27" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(googleAuthR)</span>
-<span id="cb4-28"><a href="#cb4-28" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb4-29"><a href="#cb4-29" aria-hidden="true" tabindex="-1"></a><span class="fu">gar_auth</span>()</span>
-<span id="cb4-30"><a href="#cb4-30" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb4-31"><a href="#cb4-31" aria-hidden="true" tabindex="-1"></a>ggg <span class="ot">&lt;-</span> <span class="fu">gar_batch</span>(<span class="fu">list</span>(<span class="fu">shorten_url</span>(<span class="st">&quot;http://markedmondson.me&quot;</span>), <span class="fu">user_history</span>()))</span></code></pre></div>
+<div class="sourceCode" id="cb4"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb4-1"><a href="#cb4-1" tabindex="-1"></a><span class="do">## usually set on package load</span></span>
+<span id="cb4-2"><a href="#cb4-2" tabindex="-1"></a><span class="fu">options</span>(<span class="at">googleAuthR.batch_endpoint =</span> <span class="st">&quot;https://www.googleapis.com/batch/urlshortener/v1&quot;</span>)</span>
+<span id="cb4-3"><a href="#cb4-3" tabindex="-1"></a></span>
+<span id="cb4-4"><a href="#cb4-4" tabindex="-1"></a><span class="do">## from goo.gl API</span></span>
+<span id="cb4-5"><a href="#cb4-5" tabindex="-1"></a>shorten_url <span class="ot">&lt;-</span> <span class="cf">function</span>(url){</span>
+<span id="cb4-6"><a href="#cb4-6" tabindex="-1"></a></span>
+<span id="cb4-7"><a href="#cb4-7" tabindex="-1"></a>  body <span class="ot">=</span> <span class="fu">list</span>(</span>
+<span id="cb4-8"><a href="#cb4-8" tabindex="-1"></a>    <span class="at">longUrl =</span> url</span>
+<span id="cb4-9"><a href="#cb4-9" tabindex="-1"></a>  )</span>
+<span id="cb4-10"><a href="#cb4-10" tabindex="-1"></a>  </span>
+<span id="cb4-11"><a href="#cb4-11" tabindex="-1"></a>  f <span class="ot">&lt;-</span> <span class="fu">gar_api_generator</span>(<span class="st">&quot;https://www.googleapis.com/urlshortener/v1/url&quot;</span>,</span>
+<span id="cb4-12"><a href="#cb4-12" tabindex="-1"></a>                         <span class="st">&quot;POST&quot;</span>,</span>
+<span id="cb4-13"><a href="#cb4-13" tabindex="-1"></a>                         <span class="at">data_parse_function =</span> <span class="cf">function</span>(x) x<span class="sc">$</span>id)</span>
+<span id="cb4-14"><a href="#cb4-14" tabindex="-1"></a>  </span>
+<span id="cb4-15"><a href="#cb4-15" tabindex="-1"></a>  <span class="fu">f</span>(<span class="at">the_body =</span> body)</span>
+<span id="cb4-16"><a href="#cb4-16" tabindex="-1"></a>  </span>
+<span id="cb4-17"><a href="#cb4-17" tabindex="-1"></a>}</span>
+<span id="cb4-18"><a href="#cb4-18" tabindex="-1"></a></span>
+<span id="cb4-19"><a href="#cb4-19" tabindex="-1"></a><span class="do">## from goo.gl API</span></span>
+<span id="cb4-20"><a href="#cb4-20" tabindex="-1"></a>user_history <span class="ot">&lt;-</span> <span class="cf">function</span>(){</span>
+<span id="cb4-21"><a href="#cb4-21" tabindex="-1"></a>  f <span class="ot">&lt;-</span> <span class="fu">gar_api_generator</span>(<span class="st">&quot;https://www.googleapis.com/urlshortener/v1/url/history&quot;</span>,</span>
+<span id="cb4-22"><a href="#cb4-22" tabindex="-1"></a>                         <span class="st">&quot;GET&quot;</span>,</span>
+<span id="cb4-23"><a href="#cb4-23" tabindex="-1"></a>                         <span class="at">data_parse_function =</span> <span class="cf">function</span>(x) x<span class="sc">$</span>items)</span>
+<span id="cb4-24"><a href="#cb4-24" tabindex="-1"></a>  </span>
+<span id="cb4-25"><a href="#cb4-25" tabindex="-1"></a>  <span class="fu">f</span>()</span>
+<span id="cb4-26"><a href="#cb4-26" tabindex="-1"></a>}</span>
+<span id="cb4-27"><a href="#cb4-27" tabindex="-1"></a><span class="fu">library</span>(googleAuthR)</span>
+<span id="cb4-28"><a href="#cb4-28" tabindex="-1"></a></span>
+<span id="cb4-29"><a href="#cb4-29" tabindex="-1"></a><span class="fu">gar_auth</span>()</span>
+<span id="cb4-30"><a href="#cb4-30" tabindex="-1"></a></span>
+<span id="cb4-31"><a href="#cb4-31" tabindex="-1"></a>ggg <span class="ot">&lt;-</span> <span class="fu">gar_batch</span>(<span class="fu">list</span>(<span class="fu">shorten_url</span>(<span class="st">&quot;http://markedmondson.me&quot;</span>), <span class="fu">user_history</span>()))</span></code></pre></div>
 </div>
 </div>
 <div id="walking-through-batch-requests" class="section level3">
@@ -559,33 +559,33 @@ on the parsed output of each call, before they are merged.</li>
 </ul>
 <p>An example is shown below - this gets a Google Analytics WebProperty
 object for each Account ID, in batches of 100 per API call:</p>
-<div class="sourceCode" id="cb5"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="co"># outputs a vector of accountIds</span></span>
-<span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a>getAccountInfo <span class="ot">&lt;-</span> <span class="fu">gar_api_generator</span>(</span>
-<span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a>  <span class="st">&quot;https://www.googleapis.com/analytics/v3/management/accounts&quot;</span>,</span>
-<span id="cb5-4"><a href="#cb5-4" aria-hidden="true" tabindex="-1"></a>  <span class="st">&quot;GET&quot;</span>, <span class="at">data_parse_function =</span> <span class="cf">function</span>(x) <span class="fu">unique</span>(x<span class="sc">$</span>items<span class="sc">$</span>id))</span>
-<span id="cb5-5"><a href="#cb5-5" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb5-6"><a href="#cb5-6" aria-hidden="true" tabindex="-1"></a><span class="co"># for each accountId, get a list of web properties</span></span>
-<span id="cb5-7"><a href="#cb5-7" aria-hidden="true" tabindex="-1"></a>getWebpropertyInfo <span class="ot">&lt;-</span> <span class="fu">gar_api_generator</span>(</span>
-<span id="cb5-8"><a href="#cb5-8" aria-hidden="true" tabindex="-1"></a>  <span class="st">&quot;https://www.googleapis.com/analytics/v3/management/&quot;</span>, <span class="co"># don&#39;t use sprintf to construct this</span></span>
-<span id="cb5-9"><a href="#cb5-9" aria-hidden="true" tabindex="-1"></a>  <span class="st">&quot;GET&quot;</span>,</span>
-<span id="cb5-10"><a href="#cb5-10" aria-hidden="true" tabindex="-1"></a>  <span class="at">path_args =</span> <span class="fu">list</span>(<span class="at">accounts =</span> <span class="st">&quot;default&quot;</span>, <span class="at">webproperties =</span> <span class="st">&quot;&quot;</span>),</span>
-<span id="cb5-11"><a href="#cb5-11" aria-hidden="true" tabindex="-1"></a>  <span class="at">data_parse_function =</span> <span class="cf">function</span>(x) x<span class="sc">$</span>items)</span>
-<span id="cb5-12"><a href="#cb5-12" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb5-13"><a href="#cb5-13" aria-hidden="true" tabindex="-1"></a><span class="co"># walks through a list of accountIds</span></span>
-<span id="cb5-14"><a href="#cb5-14" aria-hidden="true" tabindex="-1"></a>walkWebpropertyInfo <span class="ot">&lt;-</span> <span class="cf">function</span>(accs){</span>
-<span id="cb5-15"><a href="#cb5-15" aria-hidden="true" tabindex="-1"></a>  </span>
-<span id="cb5-16"><a href="#cb5-16" aria-hidden="true" tabindex="-1"></a>  <span class="fu">gar_batch_walk</span>(getWebpropertyInfo, </span>
-<span id="cb5-17"><a href="#cb5-17" aria-hidden="true" tabindex="-1"></a>                 <span class="at">walk_vector =</span> accs,</span>
-<span id="cb5-18"><a href="#cb5-18" aria-hidden="true" tabindex="-1"></a>                 <span class="at">gar_paths =</span> <span class="fu">list</span>(<span class="st">&quot;webproperties&quot;</span> <span class="ot">=</span> <span class="st">&quot;&quot;</span>),</span>
-<span id="cb5-19"><a href="#cb5-19" aria-hidden="true" tabindex="-1"></a>                 <span class="at">path_walk =</span> <span class="st">&quot;accounts&quot;</span>,</span>
-<span id="cb5-20"><a href="#cb5-20" aria-hidden="true" tabindex="-1"></a>                 <span class="at">batch_size =</span> <span class="dv">100</span>, <span class="at">data_frame_output =</span> <span class="cn">FALSE</span>)</span>
-<span id="cb5-21"><a href="#cb5-21" aria-hidden="true" tabindex="-1"></a>}</span>
-<span id="cb5-22"><a href="#cb5-22" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb5-23"><a href="#cb5-23" aria-hidden="true" tabindex="-1"></a><span class="do">##----- to use:</span></span>
-<span id="cb5-24"><a href="#cb5-24" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb5-25"><a href="#cb5-25" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(googleAuthR)</span>
-<span id="cb5-26"><a href="#cb5-26" aria-hidden="true" tabindex="-1"></a>accs <span class="ot">&lt;-</span> <span class="fu">getAccountInfo</span>()</span>
-<span id="cb5-27"><a href="#cb5-27" aria-hidden="true" tabindex="-1"></a><span class="fu">walkWebpropertyInfo</span>(accs)</span></code></pre></div>
+<div class="sourceCode" id="cb5"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb5-1"><a href="#cb5-1" tabindex="-1"></a><span class="co"># outputs a vector of accountIds</span></span>
+<span id="cb5-2"><a href="#cb5-2" tabindex="-1"></a>getAccountInfo <span class="ot">&lt;-</span> <span class="fu">gar_api_generator</span>(</span>
+<span id="cb5-3"><a href="#cb5-3" tabindex="-1"></a>  <span class="st">&quot;https://www.googleapis.com/analytics/v3/management/accounts&quot;</span>,</span>
+<span id="cb5-4"><a href="#cb5-4" tabindex="-1"></a>  <span class="st">&quot;GET&quot;</span>, <span class="at">data_parse_function =</span> <span class="cf">function</span>(x) <span class="fu">unique</span>(x<span class="sc">$</span>items<span class="sc">$</span>id))</span>
+<span id="cb5-5"><a href="#cb5-5" tabindex="-1"></a></span>
+<span id="cb5-6"><a href="#cb5-6" tabindex="-1"></a><span class="co"># for each accountId, get a list of web properties</span></span>
+<span id="cb5-7"><a href="#cb5-7" tabindex="-1"></a>getWebpropertyInfo <span class="ot">&lt;-</span> <span class="fu">gar_api_generator</span>(</span>
+<span id="cb5-8"><a href="#cb5-8" tabindex="-1"></a>  <span class="st">&quot;https://www.googleapis.com/analytics/v3/management/&quot;</span>, <span class="co"># don&#39;t use sprintf to construct this</span></span>
+<span id="cb5-9"><a href="#cb5-9" tabindex="-1"></a>  <span class="st">&quot;GET&quot;</span>,</span>
+<span id="cb5-10"><a href="#cb5-10" tabindex="-1"></a>  <span class="at">path_args =</span> <span class="fu">list</span>(<span class="at">accounts =</span> <span class="st">&quot;default&quot;</span>, <span class="at">webproperties =</span> <span class="st">&quot;&quot;</span>),</span>
+<span id="cb5-11"><a href="#cb5-11" tabindex="-1"></a>  <span class="at">data_parse_function =</span> <span class="cf">function</span>(x) x<span class="sc">$</span>items)</span>
+<span id="cb5-12"><a href="#cb5-12" tabindex="-1"></a></span>
+<span id="cb5-13"><a href="#cb5-13" tabindex="-1"></a><span class="co"># walks through a list of accountIds</span></span>
+<span id="cb5-14"><a href="#cb5-14" tabindex="-1"></a>walkWebpropertyInfo <span class="ot">&lt;-</span> <span class="cf">function</span>(accs){</span>
+<span id="cb5-15"><a href="#cb5-15" tabindex="-1"></a>  </span>
+<span id="cb5-16"><a href="#cb5-16" tabindex="-1"></a>  <span class="fu">gar_batch_walk</span>(getWebpropertyInfo, </span>
+<span id="cb5-17"><a href="#cb5-17" tabindex="-1"></a>                 <span class="at">walk_vector =</span> accs,</span>
+<span id="cb5-18"><a href="#cb5-18" tabindex="-1"></a>                 <span class="at">gar_paths =</span> <span class="fu">list</span>(<span class="st">&quot;webproperties&quot;</span> <span class="ot">=</span> <span class="st">&quot;&quot;</span>),</span>
+<span id="cb5-19"><a href="#cb5-19" tabindex="-1"></a>                 <span class="at">path_walk =</span> <span class="st">&quot;accounts&quot;</span>,</span>
+<span id="cb5-20"><a href="#cb5-20" tabindex="-1"></a>                 <span class="at">batch_size =</span> <span class="dv">100</span>, <span class="at">data_frame_output =</span> <span class="cn">FALSE</span>)</span>
+<span id="cb5-21"><a href="#cb5-21" tabindex="-1"></a>}</span>
+<span id="cb5-22"><a href="#cb5-22" tabindex="-1"></a></span>
+<span id="cb5-23"><a href="#cb5-23" tabindex="-1"></a><span class="do">##----- to use:</span></span>
+<span id="cb5-24"><a href="#cb5-24" tabindex="-1"></a></span>
+<span id="cb5-25"><a href="#cb5-25" tabindex="-1"></a><span class="fu">library</span>(googleAuthR)</span>
+<span id="cb5-26"><a href="#cb5-26" tabindex="-1"></a>accs <span class="ot">&lt;-</span> <span class="fu">getAccountInfo</span>()</span>
+<span id="cb5-27"><a href="#cb5-27" tabindex="-1"></a><span class="fu">walkWebpropertyInfo</span>(accs)</span></code></pre></div>
 </div>
 </div>
 <div id="caching-api-calls" class="section level2">
@@ -594,39 +594,39 @@ object for each Account ID, in batches of 100 per API call:</p>
 to let you write API responses to memory or disk and to call them from
 there instead of the API, if its using the same parameters.</p>
 <p>A demonstration is shown below:</p>
-<div class="sourceCode" id="cb6"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a><span class="co">#&#39; Shortens a url using goo.gl</span></span>
-<span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a><span class="co">#&#39;</span></span>
-<span id="cb6-3"><a href="#cb6-3" aria-hidden="true" tabindex="-1"></a><span class="co">#&#39; </span></span>
-<span id="cb6-4"><a href="#cb6-4" aria-hidden="true" tabindex="-1"></a><span class="co">#&#39; @return the email of the user authenticated</span></span>
-<span id="cb6-5"><a href="#cb6-5" aria-hidden="true" tabindex="-1"></a>get_email <span class="ot">&lt;-</span> <span class="cf">function</span>(){</span>
-<span id="cb6-6"><a href="#cb6-6" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb6-7"><a href="#cb6-7" aria-hidden="true" tabindex="-1"></a>  f <span class="ot">&lt;-</span> <span class="fu">gar_api_generator</span>(<span class="st">&quot;https://openidconnect.googleapis.com/v1/userinfo&quot;</span>,</span>
-<span id="cb6-8"><a href="#cb6-8" aria-hidden="true" tabindex="-1"></a>                         <span class="st">&quot;POST&quot;</span>,</span>
-<span id="cb6-9"><a href="#cb6-9" aria-hidden="true" tabindex="-1"></a>                         <span class="at">data_parse_function =</span> <span class="cf">function</span>(x) x<span class="sc">$</span>email,</span>
-<span id="cb6-10"><a href="#cb6-10" aria-hidden="true" tabindex="-1"></a>                         <span class="at">checkTrailingSlash =</span> <span class="cn">FALSE</span>)</span>
-<span id="cb6-11"><a href="#cb6-11" aria-hidden="true" tabindex="-1"></a>  </span>
-<span id="cb6-12"><a href="#cb6-12" aria-hidden="true" tabindex="-1"></a>  <span class="fu">f</span>()</span>
-<span id="cb6-13"><a href="#cb6-13" aria-hidden="true" tabindex="-1"></a>  </span>
-<span id="cb6-14"><a href="#cb6-14" aria-hidden="true" tabindex="-1"></a>}</span>
-<span id="cb6-15"><a href="#cb6-15" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb6-16"><a href="#cb6-16" aria-hidden="true" tabindex="-1"></a><span class="fu">gar_auth</span>(<span class="at">email =</span> <span class="fu">Sys.getenv</span>(<span class="st">&quot;GARGLE_EMAIL&quot;</span>), <span class="at">scopes =</span> <span class="st">&quot;email&quot;</span>)</span>
-<span id="cb6-17"><a href="#cb6-17" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb6-18"><a href="#cb6-18" aria-hidden="true" tabindex="-1"></a><span class="do">## normal API fetch</span></span>
-<span id="cb6-19"><a href="#cb6-19" aria-hidden="true" tabindex="-1"></a><span class="fu">get_email</span>()</span>
-<span id="cb6-20"><a href="#cb6-20" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; email@me.com</span></span>
-<span id="cb6-21"><a href="#cb6-21" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb6-22"><a href="#cb6-22" aria-hidden="true" tabindex="-1"></a><span class="do">## By default this will save the API response to RAM when it has a 200 response</span></span>
-<span id="cb6-23"><a href="#cb6-23" aria-hidden="true" tabindex="-1"></a><span class="fu">gar_cache_setup</span>()</span>
-<span id="cb6-24"><a href="#cb6-24" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; [1] TRUE</span></span>
-<span id="cb6-25"><a href="#cb6-25" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb6-26"><a href="#cb6-26" aria-hidden="true" tabindex="-1"></a><span class="do">## first time no cache</span></span>
-<span id="cb6-27"><a href="#cb6-27" aria-hidden="true" tabindex="-1"></a><span class="fu">get_email</span>()</span>
-<span id="cb6-28"><a href="#cb6-28" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; email@me.com</span></span>
-<span id="cb6-29"><a href="#cb6-29" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb6-30"><a href="#cb6-30" aria-hidden="true" tabindex="-1"></a><span class="do">## second time cached - much quicker for slow functions</span></span>
-<span id="cb6-31"><a href="#cb6-31" aria-hidden="true" tabindex="-1"></a><span class="fu">get_email</span>()</span>
-<span id="cb6-32"><a href="#cb6-32" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 2019-07-17 12:29:18&gt; Reading cache</span></span>
-<span id="cb6-33"><a href="#cb6-33" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; email@me.com</span></span></code></pre></div>
+<div class="sourceCode" id="cb6"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb6-1"><a href="#cb6-1" tabindex="-1"></a><span class="co">#&#39; Shortens a url using goo.gl</span></span>
+<span id="cb6-2"><a href="#cb6-2" tabindex="-1"></a><span class="co">#&#39;</span></span>
+<span id="cb6-3"><a href="#cb6-3" tabindex="-1"></a><span class="co">#&#39; </span></span>
+<span id="cb6-4"><a href="#cb6-4" tabindex="-1"></a><span class="co">#&#39; @return the email of the user authenticated</span></span>
+<span id="cb6-5"><a href="#cb6-5" tabindex="-1"></a>get_email <span class="ot">&lt;-</span> <span class="cf">function</span>(){</span>
+<span id="cb6-6"><a href="#cb6-6" tabindex="-1"></a></span>
+<span id="cb6-7"><a href="#cb6-7" tabindex="-1"></a>  f <span class="ot">&lt;-</span> <span class="fu">gar_api_generator</span>(<span class="st">&quot;https://openidconnect.googleapis.com/v1/userinfo&quot;</span>,</span>
+<span id="cb6-8"><a href="#cb6-8" tabindex="-1"></a>                         <span class="st">&quot;POST&quot;</span>,</span>
+<span id="cb6-9"><a href="#cb6-9" tabindex="-1"></a>                         <span class="at">data_parse_function =</span> <span class="cf">function</span>(x) x<span class="sc">$</span>email,</span>
+<span id="cb6-10"><a href="#cb6-10" tabindex="-1"></a>                         <span class="at">checkTrailingSlash =</span> <span class="cn">FALSE</span>)</span>
+<span id="cb6-11"><a href="#cb6-11" tabindex="-1"></a>  </span>
+<span id="cb6-12"><a href="#cb6-12" tabindex="-1"></a>  <span class="fu">f</span>()</span>
+<span id="cb6-13"><a href="#cb6-13" tabindex="-1"></a>  </span>
+<span id="cb6-14"><a href="#cb6-14" tabindex="-1"></a>}</span>
+<span id="cb6-15"><a href="#cb6-15" tabindex="-1"></a></span>
+<span id="cb6-16"><a href="#cb6-16" tabindex="-1"></a><span class="fu">gar_auth</span>(<span class="at">email =</span> <span class="fu">Sys.getenv</span>(<span class="st">&quot;GARGLE_EMAIL&quot;</span>), <span class="at">scopes =</span> <span class="st">&quot;email&quot;</span>)</span>
+<span id="cb6-17"><a href="#cb6-17" tabindex="-1"></a></span>
+<span id="cb6-18"><a href="#cb6-18" tabindex="-1"></a><span class="do">## normal API fetch</span></span>
+<span id="cb6-19"><a href="#cb6-19" tabindex="-1"></a><span class="fu">get_email</span>()</span>
+<span id="cb6-20"><a href="#cb6-20" tabindex="-1"></a><span class="co">#&gt; email@me.com</span></span>
+<span id="cb6-21"><a href="#cb6-21" tabindex="-1"></a></span>
+<span id="cb6-22"><a href="#cb6-22" tabindex="-1"></a><span class="do">## By default this will save the API response to RAM when it has a 200 response</span></span>
+<span id="cb6-23"><a href="#cb6-23" tabindex="-1"></a><span class="fu">gar_cache_setup</span>()</span>
+<span id="cb6-24"><a href="#cb6-24" tabindex="-1"></a><span class="co">#&gt; [1] TRUE</span></span>
+<span id="cb6-25"><a href="#cb6-25" tabindex="-1"></a></span>
+<span id="cb6-26"><a href="#cb6-26" tabindex="-1"></a><span class="do">## first time no cache</span></span>
+<span id="cb6-27"><a href="#cb6-27" tabindex="-1"></a><span class="fu">get_email</span>()</span>
+<span id="cb6-28"><a href="#cb6-28" tabindex="-1"></a><span class="co">#&gt; email@me.com</span></span>
+<span id="cb6-29"><a href="#cb6-29" tabindex="-1"></a></span>
+<span id="cb6-30"><a href="#cb6-30" tabindex="-1"></a><span class="do">## second time cached - much quicker for slow functions</span></span>
+<span id="cb6-31"><a href="#cb6-31" tabindex="-1"></a><span class="fu">get_email</span>()</span>
+<span id="cb6-32"><a href="#cb6-32" tabindex="-1"></a><span class="co">#&gt; 2019-07-17 12:29:18&gt; Reading cache</span></span>
+<span id="cb6-33"><a href="#cb6-33" tabindex="-1"></a><span class="co">#&gt; email@me.com</span></span></code></pre></div>
 <p>Caching is activated by using the <code>gar_cache_setup()</code>
 function.</p>
 <p>The default uses <code>memoise::cache_memory()</code> which will
@@ -657,41 +657,41 @@ response as its only input, and outputs <code>TRUE</code> or
 introduce a check e.g. for finished jobs.</p>
 <p>The default will only cache for when a successful request
 <code>200</code> is found:</p>
-<div class="sourceCode" id="cb7"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a><span class="cf">function</span>(req){req<span class="sc">$</span>status_code <span class="sc">==</span> <span class="dv">200</span>}</span></code></pre></div>
+<div class="sourceCode" id="cb7"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb7-1"><a href="#cb7-1" tabindex="-1"></a><span class="cf">function</span>(req){req<span class="sc">$</span>status_code <span class="sc">==</span> <span class="dv">200</span>}</span></code></pre></div>
 <p>For more advanced use cases, examine the response of failed and
 successful API calls, and create the appropriate function. Pass that
 function when creating the cache:</p>
-<div class="sourceCode" id="cb8"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a><span class="co"># demo function to cache within</span></span>
-<span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a>shorten_url_cache <span class="ot">&lt;-</span> <span class="cf">function</span>(url){</span>
-<span id="cb8-3"><a href="#cb8-3" aria-hidden="true" tabindex="-1"></a>  </span>
-<span id="cb8-4"><a href="#cb8-4" aria-hidden="true" tabindex="-1"></a>  body <span class="ot">=</span> <span class="fu">list</span>(</span>
-<span id="cb8-5"><a href="#cb8-5" aria-hidden="true" tabindex="-1"></a>    <span class="at">longUrl =</span> url</span>
-<span id="cb8-6"><a href="#cb8-6" aria-hidden="true" tabindex="-1"></a>  )</span>
-<span id="cb8-7"><a href="#cb8-7" aria-hidden="true" tabindex="-1"></a>  </span>
-<span id="cb8-8"><a href="#cb8-8" aria-hidden="true" tabindex="-1"></a>  f <span class="ot">&lt;-</span> <span class="fu">gar_api_generator</span>(<span class="st">&quot;https://www.googleapis.com/urlshortener/v1/url&quot;</span>,</span>
-<span id="cb8-9"><a href="#cb8-9" aria-hidden="true" tabindex="-1"></a>                         <span class="st">&quot;POST&quot;</span>,</span>
-<span id="cb8-10"><a href="#cb8-10" aria-hidden="true" tabindex="-1"></a>                         <span class="at">data_parse_function =</span> <span class="cf">function</span>(x) x)</span>
-<span id="cb8-11"><a href="#cb8-11" aria-hidden="true" tabindex="-1"></a>  </span>
-<span id="cb8-12"><a href="#cb8-12" aria-hidden="true" tabindex="-1"></a>  <span class="fu">f</span>(<span class="at">the_body =</span> body)</span>
-<span id="cb8-13"><a href="#cb8-13" aria-hidden="true" tabindex="-1"></a>  </span>
-<span id="cb8-14"><a href="#cb8-14" aria-hidden="true" tabindex="-1"></a>}</span>
-<span id="cb8-15"><a href="#cb8-15" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb8-16"><a href="#cb8-16" aria-hidden="true" tabindex="-1"></a><span class="do">## only cache if this URL</span></span>
-<span id="cb8-17"><a href="#cb8-17" aria-hidden="true" tabindex="-1"></a><span class="fu">gar_cache_setup</span>(<span class="at">invalid_func =</span> <span class="cf">function</span>(req){</span>
-<span id="cb8-18"><a href="#cb8-18" aria-hidden="true" tabindex="-1"></a>    req<span class="sc">$</span>content<span class="sc">$</span>longUrl <span class="sc">==</span> <span class="st">&quot;http://code.markedmondson.me/&quot;</span></span>
-<span id="cb8-19"><a href="#cb8-19" aria-hidden="true" tabindex="-1"></a>    })</span>
-<span id="cb8-20"><a href="#cb8-20" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb8-21"><a href="#cb8-21" aria-hidden="true" tabindex="-1"></a><span class="co"># authentication</span></span>
-<span id="cb8-22"><a href="#cb8-22" aria-hidden="true" tabindex="-1"></a><span class="fu">gar_auth</span>()</span>
-<span id="cb8-23"><a href="#cb8-23" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb8-24"><a href="#cb8-24" aria-hidden="true" tabindex="-1"></a><span class="do">## caches</span></span>
-<span id="cb8-25"><a href="#cb8-25" aria-hidden="true" tabindex="-1"></a><span class="fu">shorten_url_cache</span>(<span class="st">&quot;http://code.markedmondson.me&quot;</span>)</span>
-<span id="cb8-26"><a href="#cb8-26" aria-hidden="true" tabindex="-1"></a>  </span>
-<span id="cb8-27"><a href="#cb8-27" aria-hidden="true" tabindex="-1"></a><span class="do">## read cache</span></span>
-<span id="cb8-28"><a href="#cb8-28" aria-hidden="true" tabindex="-1"></a><span class="fu">shorten_url_cache</span>(<span class="st">&quot;http://code.markedmondson.me&quot;</span>)</span>
-<span id="cb8-29"><a href="#cb8-29" aria-hidden="true" tabindex="-1"></a>  </span>
-<span id="cb8-30"><a href="#cb8-30" aria-hidden="true" tabindex="-1"></a><span class="do">## ..but dont cache me</span></span>
-<span id="cb8-31"><a href="#cb8-31" aria-hidden="true" tabindex="-1"></a><span class="fu">shorten_url_cache</span>(<span class="st">&quot;http://blahblah.com&quot;</span>)</span></code></pre></div>
+<div class="sourceCode" id="cb8"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb8-1"><a href="#cb8-1" tabindex="-1"></a><span class="co"># demo function to cache within</span></span>
+<span id="cb8-2"><a href="#cb8-2" tabindex="-1"></a>shorten_url_cache <span class="ot">&lt;-</span> <span class="cf">function</span>(url){</span>
+<span id="cb8-3"><a href="#cb8-3" tabindex="-1"></a>  </span>
+<span id="cb8-4"><a href="#cb8-4" tabindex="-1"></a>  body <span class="ot">=</span> <span class="fu">list</span>(</span>
+<span id="cb8-5"><a href="#cb8-5" tabindex="-1"></a>    <span class="at">longUrl =</span> url</span>
+<span id="cb8-6"><a href="#cb8-6" tabindex="-1"></a>  )</span>
+<span id="cb8-7"><a href="#cb8-7" tabindex="-1"></a>  </span>
+<span id="cb8-8"><a href="#cb8-8" tabindex="-1"></a>  f <span class="ot">&lt;-</span> <span class="fu">gar_api_generator</span>(<span class="st">&quot;https://www.googleapis.com/urlshortener/v1/url&quot;</span>,</span>
+<span id="cb8-9"><a href="#cb8-9" tabindex="-1"></a>                         <span class="st">&quot;POST&quot;</span>,</span>
+<span id="cb8-10"><a href="#cb8-10" tabindex="-1"></a>                         <span class="at">data_parse_function =</span> <span class="cf">function</span>(x) x)</span>
+<span id="cb8-11"><a href="#cb8-11" tabindex="-1"></a>  </span>
+<span id="cb8-12"><a href="#cb8-12" tabindex="-1"></a>  <span class="fu">f</span>(<span class="at">the_body =</span> body)</span>
+<span id="cb8-13"><a href="#cb8-13" tabindex="-1"></a>  </span>
+<span id="cb8-14"><a href="#cb8-14" tabindex="-1"></a>}</span>
+<span id="cb8-15"><a href="#cb8-15" tabindex="-1"></a></span>
+<span id="cb8-16"><a href="#cb8-16" tabindex="-1"></a><span class="do">## only cache if this URL</span></span>
+<span id="cb8-17"><a href="#cb8-17" tabindex="-1"></a><span class="fu">gar_cache_setup</span>(<span class="at">invalid_func =</span> <span class="cf">function</span>(req){</span>
+<span id="cb8-18"><a href="#cb8-18" tabindex="-1"></a>    req<span class="sc">$</span>content<span class="sc">$</span>longUrl <span class="sc">==</span> <span class="st">&quot;http://code.markedmondson.me/&quot;</span></span>
+<span id="cb8-19"><a href="#cb8-19" tabindex="-1"></a>    })</span>
+<span id="cb8-20"><a href="#cb8-20" tabindex="-1"></a></span>
+<span id="cb8-21"><a href="#cb8-21" tabindex="-1"></a><span class="co"># authentication</span></span>
+<span id="cb8-22"><a href="#cb8-22" tabindex="-1"></a><span class="fu">gar_auth</span>()</span>
+<span id="cb8-23"><a href="#cb8-23" tabindex="-1"></a></span>
+<span id="cb8-24"><a href="#cb8-24" tabindex="-1"></a><span class="do">## caches</span></span>
+<span id="cb8-25"><a href="#cb8-25" tabindex="-1"></a><span class="fu">shorten_url_cache</span>(<span class="st">&quot;http://code.markedmondson.me&quot;</span>)</span>
+<span id="cb8-26"><a href="#cb8-26" tabindex="-1"></a>  </span>
+<span id="cb8-27"><a href="#cb8-27" tabindex="-1"></a><span class="do">## read cache</span></span>
+<span id="cb8-28"><a href="#cb8-28" tabindex="-1"></a><span class="fu">shorten_url_cache</span>(<span class="st">&quot;http://code.markedmondson.me&quot;</span>)</span>
+<span id="cb8-29"><a href="#cb8-29" tabindex="-1"></a>  </span>
+<span id="cb8-30"><a href="#cb8-30" tabindex="-1"></a><span class="do">## ..but dont cache me</span></span>
+<span id="cb8-31"><a href="#cb8-31" tabindex="-1"></a><span class="fu">shorten_url_cache</span>(<span class="st">&quot;http://blahblah.com&quot;</span>)</span></code></pre></div>
 <div id="batching-and-caching" class="section level4">
 <h4>Batching and caching</h4>
 <p>If you are caching a batched call, your cache invalidation function
@@ -700,22 +700,22 @@ will need to take account that it will recieve a response which is a
 content-type header. This response will need to be parsed into JSON
 first, before applying your data parsing functions and/or deciding to
 cache. To get you started here is a cache function:</p>
-<div class="sourceCode" id="cb9"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a>batched_caching <span class="ot">&lt;-</span> <span class="cf">function</span>(req){</span>
-<span id="cb9-2"><a href="#cb9-2" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb9-3"><a href="#cb9-3" aria-hidden="true" tabindex="-1"></a>  <span class="do">## if a batched response</span></span>
-<span id="cb9-4"><a href="#cb9-4" aria-hidden="true" tabindex="-1"></a>  <span class="cf">if</span>(<span class="fu">grepl</span>(<span class="st">&quot;^multipart/mixed; boundary=batch_&quot;</span>,req<span class="sc">$</span>headers<span class="sc">$</span><span class="st">`</span><span class="at">content-type</span><span class="st">`</span>)){</span>
-<span id="cb9-5"><a href="#cb9-5" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb9-6"><a href="#cb9-6" aria-hidden="true" tabindex="-1"></a>    <span class="do">## find content that indicates a successful request (&#39;kind:analytics#gaData&#39;)</span></span>
-<span id="cb9-7"><a href="#cb9-7" aria-hidden="true" tabindex="-1"></a>    parsed <span class="ot">&lt;-</span> httr<span class="sc">::</span><span class="fu">content</span>(req, <span class="at">as =</span> <span class="st">&quot;text&quot;</span>, <span class="at">encoding =</span> <span class="st">&quot;UTF-8&quot;</span>)</span>
-<span id="cb9-8"><a href="#cb9-8" aria-hidden="true" tabindex="-1"></a>    is_ga <span class="ot">&lt;-</span> <span class="fu">grepl</span>(<span class="st">&#39;&quot;kind&quot;:&quot;analytics#gaData&quot;&#39;</span>, parsed)</span>
-<span id="cb9-9"><a href="#cb9-9" aria-hidden="true" tabindex="-1"></a>    <span class="cf">if</span>(is_ga){</span>
-<span id="cb9-10"><a href="#cb9-10" aria-hidden="true" tabindex="-1"></a>      <span class="do">## is a response you want, cache me</span></span>
-<span id="cb9-11"><a href="#cb9-11" aria-hidden="true" tabindex="-1"></a>      <span class="fu">return</span>(<span class="cn">TRUE</span>)</span>
-<span id="cb9-12"><a href="#cb9-12" aria-hidden="true" tabindex="-1"></a>    }</span>
-<span id="cb9-13"><a href="#cb9-13" aria-hidden="true" tabindex="-1"></a>  }</span>
-<span id="cb9-14"><a href="#cb9-14" aria-hidden="true" tabindex="-1"></a>  </span>
-<span id="cb9-15"><a href="#cb9-15" aria-hidden="true" tabindex="-1"></a>  <span class="cn">FALSE</span></span>
-<span id="cb9-16"><a href="#cb9-16" aria-hidden="true" tabindex="-1"></a>}</span></code></pre></div>
+<div class="sourceCode" id="cb9"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb9-1"><a href="#cb9-1" tabindex="-1"></a>batched_caching <span class="ot">&lt;-</span> <span class="cf">function</span>(req){</span>
+<span id="cb9-2"><a href="#cb9-2" tabindex="-1"></a></span>
+<span id="cb9-3"><a href="#cb9-3" tabindex="-1"></a>  <span class="do">## if a batched response</span></span>
+<span id="cb9-4"><a href="#cb9-4" tabindex="-1"></a>  <span class="cf">if</span>(<span class="fu">grepl</span>(<span class="st">&quot;^multipart/mixed; boundary=batch_&quot;</span>,req<span class="sc">$</span>headers<span class="sc">$</span><span class="st">`</span><span class="at">content-type</span><span class="st">`</span>)){</span>
+<span id="cb9-5"><a href="#cb9-5" tabindex="-1"></a></span>
+<span id="cb9-6"><a href="#cb9-6" tabindex="-1"></a>    <span class="do">## find content that indicates a successful request (&#39;kind:analytics#gaData&#39;)</span></span>
+<span id="cb9-7"><a href="#cb9-7" tabindex="-1"></a>    parsed <span class="ot">&lt;-</span> httr<span class="sc">::</span><span class="fu">content</span>(req, <span class="at">as =</span> <span class="st">&quot;text&quot;</span>, <span class="at">encoding =</span> <span class="st">&quot;UTF-8&quot;</span>)</span>
+<span id="cb9-8"><a href="#cb9-8" tabindex="-1"></a>    is_ga <span class="ot">&lt;-</span> <span class="fu">grepl</span>(<span class="st">&#39;&quot;kind&quot;:&quot;analytics#gaData&quot;&#39;</span>, parsed)</span>
+<span id="cb9-9"><a href="#cb9-9" tabindex="-1"></a>    <span class="cf">if</span>(is_ga){</span>
+<span id="cb9-10"><a href="#cb9-10" tabindex="-1"></a>      <span class="do">## is a response you want, cache me</span></span>
+<span id="cb9-11"><a href="#cb9-11" tabindex="-1"></a>      <span class="fu">return</span>(<span class="cn">TRUE</span>)</span>
+<span id="cb9-12"><a href="#cb9-12" tabindex="-1"></a>    }</span>
+<span id="cb9-13"><a href="#cb9-13" tabindex="-1"></a>  }</span>
+<span id="cb9-14"><a href="#cb9-14" tabindex="-1"></a>  </span>
+<span id="cb9-15"><a href="#cb9-15" tabindex="-1"></a>  <span class="cn">FALSE</span></span>
+<span id="cb9-16"><a href="#cb9-16" tabindex="-1"></a>}</span></code></pre></div>
 </div>
 </div>
 <div id="using-caching" class="section level3">
@@ -761,7 +761,28 @@ of code are triggered within them. This lets you see how thorough yours
 tests are. Developers covert the 100% coverage badge as it shows all of
 your code is checked every time you push to GitHub and helps mitigate
 bugs.</p>
-<p>This is this package’s current Codecov status: <a href="https://app.codecov.io/gh/MarkEdmondson1234/googleAuthR"><img src="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIxMTIiIGhlaWdodD0iMjAiPgogICAgPGxpbmVhckdyYWRpZW50IGlkPSJiIiB4Mj0iMCIgeTI9IjEwMCUiPgogICAgICAgIDxzdG9wIG9mZnNldD0iMCIgc3RvcC1jb2xvcj0iI2JiYiIgc3RvcC1vcGFjaXR5PSIuMSIgLz4KICAgICAgICA8c3RvcCBvZmZzZXQ9IjEiIHN0b3Atb3BhY2l0eT0iLjEiIC8+CiAgICA8L2xpbmVhckdyYWRpZW50PgogICAgPG1hc2sgaWQ9ImEiPgogICAgICAgIDxyZWN0IHdpZHRoPSIxMTIiIGhlaWdodD0iMjAiIHJ4PSIzIiBmaWxsPSIjZmZmIiAvPgogICAgPC9tYXNrPgogICAgPGcgbWFzaz0idXJsKCNhKSI+CiAgICAgICAgPHBhdGggZmlsbD0iIzU1NSIgZD0iTTAgMGg3NnYyMEgweiIgLz4KICAgICAgICA8cGF0aCBmaWxsPSIjZTA1ZDQ0IiBkPSJNNzYgMGgzNnYyMEg3NnoiIC8+CiAgICAgICAgPHBhdGggZmlsbD0idXJsKCNiKSIgZD0iTTAgMGgxMTJ2MjBIMHoiIC8+CiAgICA8L2c+CiAgICA8ZyBmaWxsPSIjZmZmIiB0ZXh0LWFuY2hvcj0ibWlkZGxlIiBmb250LWZhbWlseT0iRGVqYVZ1IFNhbnMsVmVyZGFuYSxHZW5ldmEsc2Fucy1zZXJpZiIgZm9udC1zaXplPSIxMSI+CiAgICAgICAgPHRleHQgeD0iNDYiIHk9IjE1IiBmaWxsPSIjMDEwMTAxIiBmaWxsLW9wYWNpdHk9Ii4zIj5jb2RlY292PC90ZXh0PgogICAgICAgIDx0ZXh0IHg9IjQ2IiB5PSIxNCI+Y29kZWNvdjwvdGV4dD4KICAgICAgICA8dGV4dCB4PSI5MyIgeT0iMTUiIGZpbGw9IiMwMTAxMDEiIGZpbGwtb3BhY2l0eT0iLjMiPjY2JTwvdGV4dD4KICAgICAgICA8dGV4dCB4PSI5MyIgeT0iMTQiPjY2JTwvdGV4dD4KICAgIDwvZz4KICAgIDxzdmcgdmlld0JveD0iMTIwIC04IDYwIDYwIj4KICAgICAgICA8cGF0aCBkPSJNMjMuMDEzIDBDMTAuMzMzLjAwOS4wMSAxMC4yMiAwIDIyLjc2MnYuMDU4bDMuOTE0IDIuMjc1LjA1My0uMDM2YTExLjI5MSAxMS4yOTEgMCAwIDEgOC4zNTItMS43NjcgMTAuOTExIDEwLjkxMSAwIDAgMSA1LjUgMi43MjZsLjY3My42MjQuMzgtLjgyOGMuMzY4LS44MDIuNzkzLTEuNTU2IDEuMjY0LTIuMjQuMTktLjI3Ni4zOTgtLjU1NC42MzctLjg1MWwuMzkzLS40OS0uNDg0LS40MDRhMTYuMDggMTYuMDggMCAwIDAtNy40NTMtMy40NjYgMTYuNDgyIDE2LjQ4MiAwIDAgMC03LjcwNS40NDlDNy4zODYgMTAuNjgzIDE0LjU2IDUuMDE2IDIzLjAzIDUuMDFjNC43NzkgMCA5LjI3MiAxLjg0IDEyLjY1MSA1LjE4IDIuNDEgMi4zODIgNC4wNjkgNS4zNSA0LjgwNyA4LjU5MWExNi41MyAxNi41MyAwIDAgMC00Ljc5Mi0uNzIzbC0uMjkyLS4wMDJhMTYuNzA3IDE2LjcwNyAwIDAgMC0xLjkwMi4xNGwtLjA4LjAxMmMtLjI4LjAzNy0uNTI0LjA3NC0uNzQ4LjExNS0uMTEuMDE5LS4yMTguMDQxLS4zMjcuMDYzLS4yNTcuMDUyLS41MS4xMDgtLjc1LjE2OWwtLjI2NS4wNjdhMTYuMzkgMTYuMzkgMCAwIDAtLjkyNi4yNzZsLS4wNTYuMDE4Yy0uNjgyLjIzLTEuMzYuNTExLTIuMDE2LjgzOGwtLjA1Mi4wMjZjLS4yOS4xNDUtLjU4NC4zMDUtLjg5OS40OWwtLjA2OS4wNGExNS41OTYgMTUuNTk2IDAgMCAwLTQuMDYxIDMuNDY2bC0uMTQ1LjE3NWMtLjI5LjM2LS41MjEuNjY2LS43MjMuOTYtLjE3LjI0Ny0uMzQuNTEzLS41NTIuODY0bC0uMTE2LjE5OWMtLjE3LjI5Mi0uMzIuNTctLjQ0OS44MjRsLS4wMy4wNTdhMTYuMTE2IDE2LjExNiAwIDAgMC0uODQzIDIuMDI5bC0uMDM0LjEwMmExNS42NSAxNS42NSAwIDAgMC0uNzg2IDUuMTc0bC4wMDMuMjE0YTIxLjUyMyAyMS41MjMgMCAwIDAgLjA0Ljc1NGMuMDA5LjExOS4wMi4yMzcuMDMyLjM1NS4wMTQuMTQ1LjAzMi4yOS4wNDkuNDMybC4wMS4wOGMuMDEuMDY3LjAxNy4xMzMuMDI2LjE5Ny4wMzQuMjQyLjA3NC40OC4xMTkuNzIuNDYzIDIuNDE5IDEuNjIgNC44MzYgMy4zNDUgNi45OWwuMDc4LjA5OC4wOC0uMDk1Yy42ODgtLjgxIDIuMzk1LTMuMzggMi41MzktNC45MjJsLjAwMy0uMDI5LS4wMTQtLjAyNWExMC43MjcgMTAuNzI3IDAgMCAxLTEuMjI2LTQuOTU2YzAtNS43NiA0LjU0NS0xMC41NDQgMTAuMzQzLTEwLjg5bC4zODEtLjAxNGExMS40MDMgMTEuNDAzIDAgMCAxIDYuNjUxIDEuOTU3bC4wNTQuMDM2IDMuODYyLTIuMjM3LjA1LS4wM3YtLjA1NmMuMDA2LTYuMDgtMi4zODQtMTEuNzkzLTYuNzI5LTE2LjA4OUMzNC45MzIgMi4zNjEgMjkuMTYgMCAyMy4wMTMgMCIgZmlsbD0iI0YwMUY3QSIgZmlsbC1ydWxlPSJldmVub2RkIi8+CiAgICA8L3N2Zz4KPC9zdmc+" alt="codecov" /></a></p>
+<p>This is this package’s current Codecov status: <a href="https://app.codecov.io/gh/MarkEdmondson1234/googleAuthR"><svg id="svg_ead0283d68963a222cce" alt="codecov" width="112" height="20" viewBox="0 0 112 20">
+    <linearGradient id="svg_ead0283d68963a222cce_b" x2="0" y2="100%">
+        <stop offset="0" stop-color="#bbb" stop-opacity=".1"></stop>
+        <stop offset="1" stop-opacity=".1"></stop>
+    </linearGradient>
+    <mask id="svg_ead0283d68963a222cce_a">
+        <rect width="112" height="20" rx="3" fill="#fff" />
+    </mask>
+    <g mask="url(#a)">
+        <path fill="#555" d="M0 0h73v20H0z" />
+        <path fill="#e05d44" d="M73 0h39v20H73z" />
+        <path fill="url(#b)" d="M0 0h112v20H0z" />
+    </g>
+    <g fill="#fff" text-anchor="middle" font-family="DejaVu Sans,Verdana,Geneva,sans-serif" font-size="11">
+        <text x="46" y="15" fill="#010101" fill-opacity=".3">codecov</text>
+        <text x="46" y="14">codecov</text>
+        <text x="93" y="15" fill="#010101" fill-opacity=".3">66%</text>
+        <text x="93" y="14">66%</text>
+    </g>
+    <svg viewBox="120 -8 60 60">
+        <path d="M23.013 0C10.333.009.01 10.22 0 22.762v.058l3.914 2.275.053-.036a11.291 11.291 0 0 1 8.352-1.767 10.911 10.911 0 0 1 5.5 2.726l.673.624.38-.828c.368-.802.793-1.556 1.264-2.24.19-.276.398-.554.637-.851l.393-.49-.484-.404a16.08 16.08 0 0 0-7.453-3.466 16.482 16.482 0 0 0-7.705.449C7.386 10.683 14.56 5.016 23.03 5.01c4.779 0 9.272 1.84 12.651 5.18 2.41 2.382 4.069 5.35 4.807 8.591a16.53 16.53 0 0 0-4.792-.723l-.292-.002a16.707 16.707 0 0 0-1.902.14l-.08.012c-.28.037-.524.074-.748.115-.11.019-.218.041-.327.063-.257.052-.51.108-.75.169l-.265.067a16.39 16.39 0 0 0-.926.276l-.056.018c-.682.23-1.36.511-2.016.838l-.052.026c-.29.145-.584.305-.899.49l-.069.04a15.596 15.596 0 0 0-4.061 3.466l-.145.175c-.29.36-.521.666-.723.96-.17.247-.34.513-.552.864l-.116.199c-.17.292-.32.57-.449.824l-.03.057a16.116 16.116 0 0 0-.843 2.029l-.034.102a15.65 15.65 0 0 0-.786 5.174l.003.214a21.523 21.523 0 0 0 .04.754c.009.119.02.237.032.355.014.145.032.29.049.432l.01.08c.01.067.017.133.026.197.034.242.074.48.119.72.463 2.419 1.62 4.836 3.345 6.99l.078.098.08-.095c.688-.81 2.395-3.38 2.539-4.922l.003-.029-.014-.025a10.727 10.727 0 0 1-1.226-4.956c0-5.76 4.545-10.544 10.343-10.89l.381-.014a11.403 11.403 0 0 1 6.651 1.957l.054.036 3.862-2.237.05-.03v-.056c.006-6.08-2.384-11.793-6.729-16.089C34.932 2.361 29.16 0 23.013 0" fill="#F01F7A" fill-rule="evenodd" />
+    </svg></a></p>
 <div id="offline-code-coverage" class="section level4">
 <h4>Offline code coverage</h4>
 <p>As mentioned above, some tests you may not be able to run online due

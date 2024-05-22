@@ -3,6 +3,7 @@
 \docType{package}
 \name{googleAuthR}
 \alias{googleAuthR}
+\alias{googleAuthR-package}
 \title{googleAuthR: Easy Authentication with Google OAuth2 APIs}
 \description{
 Get more details on the \href{https://code.markedmondson.me/googleAuthR/}{googleAuthR website}.
@@ -24,9 +25,36 @@ These are the default options that you can override via \code{options()}
   \item \code{googleAuthR.webapp.port = 1221}
   \item \code{googleAuthR.jsonlite.simplifyVector = TRUE}
   \item \code{googleAuthR.scopes.selected = NULL}
+  \item \code{googleAuthR.skip_token_checks = FALSE}
   \item \code{googleAuthR.ok_content_types=c("application/json; charset=UTF-8", ("text/html; charset=UTF-8"))}
   \item \code{googleAuthR.securitycode = paste0(sample(c(1:9, LETTERS, letters), 20, replace = T), collapse='')}
   \item \code{googleAuthR.tryAttempts = 5}
  }
 }
 
+\seealso{
+Useful links:
+\itemize{
+  \item \url{https://code.markedmondson.me/googleAuthR/}
+  \item Report bugs at \url{https://github.com/MarkEdmondson1234/googleAuthR/issues}
+}
+
+}
+\author{
+\strong{Maintainer}: Erik Grönroos \email{erik.gronroos@8-bit-sheep.com}
+
+Authors:
+\itemize{
+  \item Mark Edmondson \email{m@sunholo.com} (\href{https://orcid.org/0000-0002-8434-3881}{ORCID})
+}
+
+Other contributors:
+\itemize{
+  \item Jennifer Bryan \email{jenny@stat.ubc.ca} [contributor]
+  \item Johann deBoer \email{johanndeboer@gmail.com} [contributor]
+  \item Neal Richardson \email{neal.p.richardson@gmail.com} [contributor]
+  \item David Kulp \email{dkulp@cs.umass.edu} [contributor]
+  \item Joe Cheng \email{joe@rstudio.com} [contributor]
+}
+
+}

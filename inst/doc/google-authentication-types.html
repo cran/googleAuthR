@@ -12,7 +12,7 @@
 
 <meta name="author" content="Mark Edmondson" />
 
-<meta name="date" content="2023-04-11" />
+<meta name="date" content="2024-05-22" />
 
 <title>Google authentication types for R</title>
 
@@ -51,7 +51,7 @@ overflow: visible;
 </style>
 <style type="text/css" data-origin="pandoc">
 pre > code.sourceCode { white-space: pre; position: relative; }
-pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+pre > code.sourceCode > span { line-height: 1.25; }
 pre > code.sourceCode > span:empty { height: 1.2em; }
 .sourceCode { overflow: visible; }
 code.sourceCode > span { color: inherit; text-decoration: inherit; }
@@ -340,7 +340,7 @@ code > span.er { color: #a61717; background-color: #e3d2d2; }
 
 <h1 class="title toc-ignore">Google authentication types for R</h1>
 <h4 class="author">Mark Edmondson</h4>
-<h4 class="date">2023-04-11</h4>
+<h4 class="date">2024-05-22</h4>
 
 
 
@@ -368,18 +368,18 @@ depend on <code>googleAuthR == 1.4.1</code> or before.</p>
 <h1>Quick user based authentication</h1>
 <p>Once setup, then you should go through the Google login flow in your
 browser when you run this command:</p>
-<div class="sourceCode" id="cb1"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(googleAuthR)</span>
-<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="co"># starts auth process with defaults</span></span>
-<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a><span class="fu">gar_auth</span>()</span>
-<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;The googleAuthR package is requesting access to your Google account. Select a </span></span>
-<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; pre-authorised account or enter &#39;0&#39; to obtain a new token. Press Esc/Ctrl + C to abort.</span></span>
-<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 1: mark@work.com</span></span>
-<span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 2: home@home.com</span></span></code></pre></div>
+<div class="sourceCode" id="cb1"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" tabindex="-1"></a><span class="fu">library</span>(googleAuthR)</span>
+<span id="cb1-2"><a href="#cb1-2" tabindex="-1"></a><span class="co"># starts auth process with defaults</span></span>
+<span id="cb1-3"><a href="#cb1-3" tabindex="-1"></a><span class="fu">gar_auth</span>()</span>
+<span id="cb1-4"><a href="#cb1-4" tabindex="-1"></a><span class="co">#&gt;The googleAuthR package is requesting access to your Google account. Select a </span></span>
+<span id="cb1-5"><a href="#cb1-5" tabindex="-1"></a><span class="co">#&gt; pre-authorised account or enter &#39;0&#39; to obtain a new token. Press Esc/Ctrl + C to abort.</span></span>
+<span id="cb1-6"><a href="#cb1-6" tabindex="-1"></a></span>
+<span id="cb1-7"><a href="#cb1-7" tabindex="-1"></a><span class="co">#&gt; 1: mark@work.com</span></span>
+<span id="cb1-8"><a href="#cb1-8" tabindex="-1"></a><span class="co">#&gt; 2: home@home.com</span></span></code></pre></div>
 <p>The authentication cache token is kept at a global level as per the
 <code>gargle</code> library documentation - <a href="https://gargle.r-lib.org/">see there for more details</a>.</p>
 <p>You can also specify your email to avoid the interactive menu:</p>
-<div class="sourceCode" id="cb2"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="fu">gar_auth</span>(<span class="at">email =</span> <span class="st">&quot;your@email.com&quot;</span>)</span></code></pre></div>
+<div class="sourceCode" id="cb2"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1" tabindex="-1"></a><span class="fu">gar_auth</span>(<span class="at">email =</span> <span class="st">&quot;your@email.com&quot;</span>)</span></code></pre></div>
 <p>These functions are usually wrapped in package specific functions
 when used in other packages, such as
 <code>googleAnalyticsR::ga_auth()</code></p>
@@ -413,21 +413,21 @@ the above (most usually your own user authentication).</p>
 <div id="googleauthr-1.0.0" class="section level2">
 <h2>googleAuthR &gt; 1.0.0</h2>
 <p>Authentication cache tokens are kept at a global level on your
-computer. When you authenticate the first time with a new client.id,
+computer. When you authenticate the first time with a new client_id,
 scope or email then you will go through the authentication process in
 the browser, however the next time it wil be cached and be a lot
 quicker.</p>
-<div class="sourceCode" id="cb3"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="co"># switching between auth scopes</span></span>
-<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a><span class="co"># first time new scope manual auth, then auto if supplied email   </span></span>
-<span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a><span class="fu">gar_auth</span>(<span class="at">email =</span> <span class="st">&quot;your@email.com&quot;</span>, </span>
-<span id="cb3-4"><a href="#cb3-4" aria-hidden="true" tabindex="-1"></a>         <span class="at">scopes =</span> <span class="st">&quot;https://www.googleapis.com/auth/drive&quot;</span>)</span>
-<span id="cb3-5"><a href="#cb3-5" aria-hidden="true" tabindex="-1"></a>         </span>
-<span id="cb3-6"><a href="#cb3-6" aria-hidden="true" tabindex="-1"></a><span class="co"># ... query Google Drive functions ...</span></span>
-<span id="cb3-7"><a href="#cb3-7" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb3-8"><a href="#cb3-8" aria-hidden="true" tabindex="-1"></a><span class="fu">gar_auth</span>(<span class="at">email =</span> <span class="st">&quot;your@email.com&quot;</span>, </span>
-<span id="cb3-9"><a href="#cb3-9" aria-hidden="true" tabindex="-1"></a>         <span class="at">scopes =</span> <span class="st">&quot;https://www.googleapis.com/auth/bigquery&quot;</span>)</span>
-<span id="cb3-10"><a href="#cb3-10" aria-hidden="true" tabindex="-1"></a>         </span>
-<span id="cb3-11"><a href="#cb3-11" aria-hidden="true" tabindex="-1"></a><span class="co"># ..query BigQuery functions ...</span></span></code></pre></div>
+<div class="sourceCode" id="cb3"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1" tabindex="-1"></a><span class="co"># switching between auth scopes</span></span>
+<span id="cb3-2"><a href="#cb3-2" tabindex="-1"></a><span class="co"># first time new scope manual auth, then auto if supplied email   </span></span>
+<span id="cb3-3"><a href="#cb3-3" tabindex="-1"></a><span class="fu">gar_auth</span>(<span class="at">email =</span> <span class="st">&quot;your@email.com&quot;</span>, </span>
+<span id="cb3-4"><a href="#cb3-4" tabindex="-1"></a>         <span class="at">scopes =</span> <span class="st">&quot;https://www.googleapis.com/auth/drive&quot;</span>)</span>
+<span id="cb3-5"><a href="#cb3-5" tabindex="-1"></a>         </span>
+<span id="cb3-6"><a href="#cb3-6" tabindex="-1"></a><span class="co"># ... query Google Drive functions ...</span></span>
+<span id="cb3-7"><a href="#cb3-7" tabindex="-1"></a></span>
+<span id="cb3-8"><a href="#cb3-8" tabindex="-1"></a><span class="fu">gar_auth</span>(<span class="at">email =</span> <span class="st">&quot;your@email.com&quot;</span>, </span>
+<span id="cb3-9"><a href="#cb3-9" tabindex="-1"></a>         <span class="at">scopes =</span> <span class="st">&quot;https://www.googleapis.com/auth/bigquery&quot;</span>)</span>
+<span id="cb3-10"><a href="#cb3-10" tabindex="-1"></a>         </span>
+<span id="cb3-11"><a href="#cb3-11" tabindex="-1"></a><span class="co"># ..query BigQuery functions ...</span></span></code></pre></div>
 </div>
 </div>
 <div id="setting-the-client-via-google-cloud-client-json" class="section level1">
@@ -440,32 +440,32 @@ sure the client ID type is <code>Desktop</code> for desktop
 applications.</p>
 <p>You can use this to set the client details before your first
 authentication. The above example would then be:</p>
-<div class="sourceCode" id="cb4"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(googleAuthR)</span>
-<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(googleAnalyticsR)</span>
-<span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(searchConsoleR)</span>
-<span id="cb4-4"><a href="#cb4-4" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb4-5"><a href="#cb4-5" aria-hidden="true" tabindex="-1"></a><span class="co"># set the scopes required</span></span>
-<span id="cb4-6"><a href="#cb4-6" aria-hidden="true" tabindex="-1"></a>scopes <span class="ot">=</span> <span class="fu">c</span>(<span class="st">&quot;https://www.googleapis.com/auth/analytics&quot;</span>, </span>
-<span id="cb4-7"><a href="#cb4-7" aria-hidden="true" tabindex="-1"></a>          <span class="st">&quot;https://www.googleapis.com/auth/webmasters&quot;</span>)</span>
-<span id="cb4-8"><a href="#cb4-8" aria-hidden="true" tabindex="-1"></a>                                        </span>
-<span id="cb4-9"><a href="#cb4-9" aria-hidden="true" tabindex="-1"></a><span class="co"># set the client</span></span>
-<span id="cb4-10"><a href="#cb4-10" aria-hidden="true" tabindex="-1"></a><span class="fu">gar_set_client</span>(<span class="st">&quot;client-id.json&quot;</span>, <span class="at">scopes =</span> scopes)</span>
-<span id="cb4-11"><a href="#cb4-11" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb4-12"><a href="#cb4-12" aria-hidden="true" tabindex="-1"></a><span class="co"># authenticate and go through the OAuth2 flow first time</span></span>
-<span id="cb4-13"><a href="#cb4-13" aria-hidden="true" tabindex="-1"></a><span class="fu">gar_auth</span>()</span>
-<span id="cb4-14"><a href="#cb4-14" aria-hidden="true" tabindex="-1"></a>                                        </span>
-<span id="cb4-15"><a href="#cb4-15" aria-hidden="true" tabindex="-1"></a><span class="co"># can run Google Analytics API calls:</span></span>
-<span id="cb4-16"><a href="#cb4-16" aria-hidden="true" tabindex="-1"></a><span class="fu">ga_account_list</span>()</span>
-<span id="cb4-17"><a href="#cb4-17" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb4-18"><a href="#cb4-18" aria-hidden="true" tabindex="-1"></a><span class="co"># and run Search Console API calls:</span></span>
-<span id="cb4-19"><a href="#cb4-19" aria-hidden="true" tabindex="-1"></a><span class="fu">list_websites</span>()</span></code></pre></div>
+<div class="sourceCode" id="cb4"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb4-1"><a href="#cb4-1" tabindex="-1"></a><span class="fu">library</span>(googleAuthR)</span>
+<span id="cb4-2"><a href="#cb4-2" tabindex="-1"></a><span class="fu">library</span>(googleAnalyticsR)</span>
+<span id="cb4-3"><a href="#cb4-3" tabindex="-1"></a><span class="fu">library</span>(searchConsoleR)</span>
+<span id="cb4-4"><a href="#cb4-4" tabindex="-1"></a></span>
+<span id="cb4-5"><a href="#cb4-5" tabindex="-1"></a><span class="co"># set the scopes required</span></span>
+<span id="cb4-6"><a href="#cb4-6" tabindex="-1"></a>scopes <span class="ot">=</span> <span class="fu">c</span>(<span class="st">&quot;https://www.googleapis.com/auth/analytics&quot;</span>, </span>
+<span id="cb4-7"><a href="#cb4-7" tabindex="-1"></a>          <span class="st">&quot;https://www.googleapis.com/auth/webmasters&quot;</span>)</span>
+<span id="cb4-8"><a href="#cb4-8" tabindex="-1"></a>                                        </span>
+<span id="cb4-9"><a href="#cb4-9" tabindex="-1"></a><span class="co"># set the client</span></span>
+<span id="cb4-10"><a href="#cb4-10" tabindex="-1"></a><span class="fu">gar_set_client</span>(<span class="st">&quot;client-id.json&quot;</span>, <span class="at">scopes =</span> scopes)</span>
+<span id="cb4-11"><a href="#cb4-11" tabindex="-1"></a></span>
+<span id="cb4-12"><a href="#cb4-12" tabindex="-1"></a><span class="co"># authenticate and go through the OAuth2 flow first time</span></span>
+<span id="cb4-13"><a href="#cb4-13" tabindex="-1"></a><span class="fu">gar_auth</span>()</span>
+<span id="cb4-14"><a href="#cb4-14" tabindex="-1"></a>                                        </span>
+<span id="cb4-15"><a href="#cb4-15" tabindex="-1"></a><span class="co"># can run Google Analytics API calls:</span></span>
+<span id="cb4-16"><a href="#cb4-16" tabindex="-1"></a><span class="fu">ga_account_list</span>()</span>
+<span id="cb4-17"><a href="#cb4-17" tabindex="-1"></a></span>
+<span id="cb4-18"><a href="#cb4-18" tabindex="-1"></a><span class="co"># and run Search Console API calls:</span></span>
+<span id="cb4-19"><a href="#cb4-19" tabindex="-1"></a><span class="fu">list_websites</span>()</span></code></pre></div>
 <p>You can also place the file location of your client ID JSON in the
 <code>GAR_CLIENT_JSON</code> environment argument, where it will look
 for it by default:</p>
-<div class="sourceCode" id="cb5"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="co"># .Renviron</span></span>
-<span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a>GAR_CLIENT_JSON<span class="ot">=</span><span class="st">&quot;~/path/to/clientjson.json&quot;</span></span></code></pre></div>
+<div class="sourceCode" id="cb5"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb5-1"><a href="#cb5-1" tabindex="-1"></a><span class="co"># .Renviron</span></span>
+<span id="cb5-2"><a href="#cb5-2" tabindex="-1"></a>GAR_CLIENT_JSON<span class="ot">=</span><span class="st">&quot;~/path/to/clientjson.json&quot;</span></span></code></pre></div>
 <p>Then you just need to supply the scopes:</p>
-<div class="sourceCode" id="cb6"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a><span class="fu">gar_set_client</span>(<span class="at">scopes =</span> <span class="st">&quot;https://www.googleapis.com/auth/webmasters&quot;</span>)</span></code></pre></div>
+<div class="sourceCode" id="cb6"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb6-1"><a href="#cb6-1" tabindex="-1"></a><span class="fu">gar_set_client</span>(<span class="at">scopes =</span> <span class="st">&quot;https://www.googleapis.com/auth/webmasters&quot;</span>)</span></code></pre></div>
 </div>
 <div id="authentication-with-no-browser" class="section level1">
 <h1>Authentication with no browser</h1>
@@ -530,37 +530,37 @@ that identifies your project.)</p>
 </ul>
 <p>An example using a service account JSON file for authentication is
 shown below:</p>
-<div class="sourceCode" id="cb7"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(googleAuthR)</span>
-<span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a><span class="fu">options</span>(<span class="at">googleAuthR.scopes.selected =</span> <span class="st">&quot;https://www.googleapis.com/auth/urlshortner&quot;</span>)</span>
-<span id="cb7-3"><a href="#cb7-3" aria-hidden="true" tabindex="-1"></a>service_token <span class="ot">&lt;-</span> <span class="fu">gar_auth_service</span>(<span class="at">json_file=</span><span class="st">&quot;~/location/of/the/json/secret.json&quot;</span>)</span>
-<span id="cb7-4"><a href="#cb7-4" aria-hidden="true" tabindex="-1"></a>analytics_url <span class="ot">&lt;-</span> <span class="cf">function</span>(shortUrl, </span>
-<span id="cb7-5"><a href="#cb7-5" aria-hidden="true" tabindex="-1"></a>                          <span class="at">timespan =</span> <span class="fu">c</span>(<span class="st">&quot;allTime&quot;</span>, <span class="st">&quot;month&quot;</span>, <span class="st">&quot;week&quot;</span>,<span class="st">&quot;day&quot;</span>,<span class="st">&quot;twoHours&quot;</span>)){</span>
-<span id="cb7-6"><a href="#cb7-6" aria-hidden="true" tabindex="-1"></a>  </span>
-<span id="cb7-7"><a href="#cb7-7" aria-hidden="true" tabindex="-1"></a>  timespan <span class="ot">&lt;-</span> <span class="fu">match.arg</span>(timespan)</span>
-<span id="cb7-8"><a href="#cb7-8" aria-hidden="true" tabindex="-1"></a>  </span>
-<span id="cb7-9"><a href="#cb7-9" aria-hidden="true" tabindex="-1"></a>  f <span class="ot">&lt;-</span> <span class="fu">gar_api_generator</span>(<span class="st">&quot;https://www.googleapis.com/urlshortener/v1/url&quot;</span>,</span>
-<span id="cb7-10"><a href="#cb7-10" aria-hidden="true" tabindex="-1"></a>                         <span class="st">&quot;GET&quot;</span>,</span>
-<span id="cb7-11"><a href="#cb7-11" aria-hidden="true" tabindex="-1"></a>                         <span class="at">pars_args =</span> <span class="fu">list</span>(<span class="at">shortUrl =</span> <span class="st">&quot;shortUrl&quot;</span>,</span>
-<span id="cb7-12"><a href="#cb7-12" aria-hidden="true" tabindex="-1"></a>                                          <span class="at">projection =</span> <span class="st">&quot;FULL&quot;</span>),</span>
-<span id="cb7-13"><a href="#cb7-13" aria-hidden="true" tabindex="-1"></a>                         <span class="at">data_parse_function =</span> <span class="cf">function</span>(x) { </span>
-<span id="cb7-14"><a href="#cb7-14" aria-hidden="true" tabindex="-1"></a>                           a <span class="ot">&lt;-</span> x<span class="sc">$</span>analytics </span>
-<span id="cb7-15"><a href="#cb7-15" aria-hidden="true" tabindex="-1"></a>                           <span class="fu">return</span>(a[timespan][[<span class="dv">1</span>]])</span>
-<span id="cb7-16"><a href="#cb7-16" aria-hidden="true" tabindex="-1"></a>                         })</span>
-<span id="cb7-17"><a href="#cb7-17" aria-hidden="true" tabindex="-1"></a>  </span>
-<span id="cb7-18"><a href="#cb7-18" aria-hidden="true" tabindex="-1"></a>  <span class="fu">f</span>(<span class="at">pars_arguments =</span> <span class="fu">list</span>(<span class="at">shortUrl =</span> shortUrl))</span>
-<span id="cb7-19"><a href="#cb7-19" aria-hidden="true" tabindex="-1"></a>}</span>
-<span id="cb7-20"><a href="#cb7-20" aria-hidden="true" tabindex="-1"></a><span class="fu">analytics_url</span>(<span class="st">&quot;https://goo.gl/2FcFVQbk&quot;</span>)</span></code></pre></div>
+<div class="sourceCode" id="cb7"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb7-1"><a href="#cb7-1" tabindex="-1"></a><span class="fu">library</span>(googleAuthR)</span>
+<span id="cb7-2"><a href="#cb7-2" tabindex="-1"></a><span class="fu">options</span>(<span class="at">googleAuthR.scopes.selected =</span> <span class="st">&quot;https://www.googleapis.com/auth/urlshortner&quot;</span>)</span>
+<span id="cb7-3"><a href="#cb7-3" tabindex="-1"></a>service_token <span class="ot">&lt;-</span> <span class="fu">gar_auth_service</span>(<span class="at">json_file=</span><span class="st">&quot;~/location/of/the/json/secret.json&quot;</span>)</span>
+<span id="cb7-4"><a href="#cb7-4" tabindex="-1"></a>analytics_url <span class="ot">&lt;-</span> <span class="cf">function</span>(shortUrl, </span>
+<span id="cb7-5"><a href="#cb7-5" tabindex="-1"></a>                          <span class="at">timespan =</span> <span class="fu">c</span>(<span class="st">&quot;allTime&quot;</span>, <span class="st">&quot;month&quot;</span>, <span class="st">&quot;week&quot;</span>,<span class="st">&quot;day&quot;</span>,<span class="st">&quot;twoHours&quot;</span>)){</span>
+<span id="cb7-6"><a href="#cb7-6" tabindex="-1"></a>  </span>
+<span id="cb7-7"><a href="#cb7-7" tabindex="-1"></a>  timespan <span class="ot">&lt;-</span> <span class="fu">match.arg</span>(timespan)</span>
+<span id="cb7-8"><a href="#cb7-8" tabindex="-1"></a>  </span>
+<span id="cb7-9"><a href="#cb7-9" tabindex="-1"></a>  f <span class="ot">&lt;-</span> <span class="fu">gar_api_generator</span>(<span class="st">&quot;https://www.googleapis.com/urlshortener/v1/url&quot;</span>,</span>
+<span id="cb7-10"><a href="#cb7-10" tabindex="-1"></a>                         <span class="st">&quot;GET&quot;</span>,</span>
+<span id="cb7-11"><a href="#cb7-11" tabindex="-1"></a>                         <span class="at">pars_args =</span> <span class="fu">list</span>(<span class="at">shortUrl =</span> <span class="st">&quot;shortUrl&quot;</span>,</span>
+<span id="cb7-12"><a href="#cb7-12" tabindex="-1"></a>                                          <span class="at">projection =</span> <span class="st">&quot;FULL&quot;</span>),</span>
+<span id="cb7-13"><a href="#cb7-13" tabindex="-1"></a>                         <span class="at">data_parse_function =</span> <span class="cf">function</span>(x) { </span>
+<span id="cb7-14"><a href="#cb7-14" tabindex="-1"></a>                           a <span class="ot">&lt;-</span> x<span class="sc">$</span>analytics </span>
+<span id="cb7-15"><a href="#cb7-15" tabindex="-1"></a>                           <span class="fu">return</span>(a[timespan][[<span class="dv">1</span>]])</span>
+<span id="cb7-16"><a href="#cb7-16" tabindex="-1"></a>                         })</span>
+<span id="cb7-17"><a href="#cb7-17" tabindex="-1"></a>  </span>
+<span id="cb7-18"><a href="#cb7-18" tabindex="-1"></a>  <span class="fu">f</span>(<span class="at">pars_arguments =</span> <span class="fu">list</span>(<span class="at">shortUrl =</span> shortUrl))</span>
+<span id="cb7-19"><a href="#cb7-19" tabindex="-1"></a>}</span>
+<span id="cb7-20"><a href="#cb7-20" tabindex="-1"></a><span class="fu">analytics_url</span>(<span class="st">&quot;https://goo.gl/2FcFVQbk&quot;</span>)</span></code></pre></div>
 <p>Another example is from the <code>searchConsoleR</code> library - in
 this case we avoid using <code>scr_auth()</code> to authenticate via the
 JSON, which has had the service email added to the Search Console web
 property as a user.</p>
-<div class="sourceCode" id="cb8"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(googleAuthR)</span>
-<span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(searchConsoleR)</span>
-<span id="cb8-3"><a href="#cb8-3" aria-hidden="true" tabindex="-1"></a><span class="fu">options</span>(<span class="at">googleAuthR.scopes.selected =</span> <span class="st">&quot;https://www.googleapis.com/auth/webmasters&quot;</span>) </span>
-<span id="cb8-4"><a href="#cb8-4" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb8-5"><a href="#cb8-5" aria-hidden="true" tabindex="-1"></a><span class="fu">gar_auth_service</span>(<span class="st">&quot;auth.json&quot;</span>)</span>
-<span id="cb8-6"><a href="#cb8-6" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb8-7"><a href="#cb8-7" aria-hidden="true" tabindex="-1"></a><span class="fu">list_websites</span>()</span></code></pre></div>
+<div class="sourceCode" id="cb8"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb8-1"><a href="#cb8-1" tabindex="-1"></a><span class="fu">library</span>(googleAuthR)</span>
+<span id="cb8-2"><a href="#cb8-2" tabindex="-1"></a><span class="fu">library</span>(searchConsoleR)</span>
+<span id="cb8-3"><a href="#cb8-3" tabindex="-1"></a><span class="fu">options</span>(<span class="at">googleAuthR.scopes.selected =</span> <span class="st">&quot;https://www.googleapis.com/auth/webmasters&quot;</span>) </span>
+<span id="cb8-4"><a href="#cb8-4" tabindex="-1"></a></span>
+<span id="cb8-5"><a href="#cb8-5" tabindex="-1"></a><span class="fu">gar_auth_service</span>(<span class="st">&quot;auth.json&quot;</span>)</span>
+<span id="cb8-6"><a href="#cb8-6" tabindex="-1"></a></span>
+<span id="cb8-7"><a href="#cb8-7" tabindex="-1"></a><span class="fu">list_websites</span>()</span></code></pre></div>
 </div>
 </div>
 </div>
@@ -618,41 +618,41 @@ itself.</p>
 <p>This uses the most modern <code>gar_shiny_*</code> family of
 functions to create authentication. The app lists the files you have
 stored in Google Drive.</p>
-<div class="sourceCode" id="cb9"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(shiny)</span>
-<span id="cb9-2"><a href="#cb9-2" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(googleAuthR)</span>
-<span id="cb9-3"><a href="#cb9-3" aria-hidden="true" tabindex="-1"></a><span class="fu">gar_set_client</span>(<span class="at">scopes =</span> <span class="st">&quot;https://www.googleapis.com/auth/drive&quot;</span>)</span>
-<span id="cb9-4"><a href="#cb9-4" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb9-5"><a href="#cb9-5" aria-hidden="true" tabindex="-1"></a>fileSearch <span class="ot">&lt;-</span> <span class="cf">function</span>(query) {</span>
-<span id="cb9-6"><a href="#cb9-6" aria-hidden="true" tabindex="-1"></a>  <span class="fu">gar_api_generator</span>(<span class="st">&quot;https://www.googleapis.com/drive/v3/files/&quot;</span>,</span>
-<span id="cb9-7"><a href="#cb9-7" aria-hidden="true" tabindex="-1"></a>                    <span class="st">&quot;GET&quot;</span>,</span>
-<span id="cb9-8"><a href="#cb9-8" aria-hidden="true" tabindex="-1"></a>                    <span class="at">pars_args=</span><span class="fu">list</span>(<span class="at">q=</span>query),</span>
-<span id="cb9-9"><a href="#cb9-9" aria-hidden="true" tabindex="-1"></a>                    <span class="at">data_parse_function =</span> <span class="cf">function</span>(x) x<span class="sc">$</span>files)()</span>
-<span id="cb9-10"><a href="#cb9-10" aria-hidden="true" tabindex="-1"></a>}</span>
-<span id="cb9-11"><a href="#cb9-11" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb9-12"><a href="#cb9-12" aria-hidden="true" tabindex="-1"></a><span class="do">## ui.R</span></span>
-<span id="cb9-13"><a href="#cb9-13" aria-hidden="true" tabindex="-1"></a>ui <span class="ot">&lt;-</span> <span class="fu">fluidPage</span>(<span class="at">title =</span> <span class="st">&quot;googleAuthR Shiny Demo&quot;</span>,</span>
-<span id="cb9-14"><a href="#cb9-14" aria-hidden="true" tabindex="-1"></a>                <span class="fu">textInput</span>(<span class="st">&quot;query&quot;</span>, </span>
-<span id="cb9-15"><a href="#cb9-15" aria-hidden="true" tabindex="-1"></a>                          <span class="at">label =</span> <span class="st">&quot;Google Drive query&quot;</span>, </span>
-<span id="cb9-16"><a href="#cb9-16" aria-hidden="true" tabindex="-1"></a>                          <span class="at">value =</span> <span class="st">&quot;mimeType != &#39;application/vnd.google-apps.folder&#39;&quot;</span>),</span>
-<span id="cb9-17"><a href="#cb9-17" aria-hidden="true" tabindex="-1"></a>                <span class="fu">tableOutput</span>(<span class="st">&quot;gdrive&quot;</span>)</span>
-<span id="cb9-18"><a href="#cb9-18" aria-hidden="true" tabindex="-1"></a>)</span>
-<span id="cb9-19"><a href="#cb9-19" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb9-20"><a href="#cb9-20" aria-hidden="true" tabindex="-1"></a><span class="do">## server.R</span></span>
-<span id="cb9-21"><a href="#cb9-21" aria-hidden="true" tabindex="-1"></a>server <span class="ot">&lt;-</span> <span class="cf">function</span>(input, output, session){</span>
-<span id="cb9-22"><a href="#cb9-22" aria-hidden="true" tabindex="-1"></a>  </span>
-<span id="cb9-23"><a href="#cb9-23" aria-hidden="true" tabindex="-1"></a>  <span class="co"># create a non-reactive access_token as we should never get past this if not authenticated</span></span>
-<span id="cb9-24"><a href="#cb9-24" aria-hidden="true" tabindex="-1"></a>  <span class="fu">gar_shiny_auth</span>(session)</span>
-<span id="cb9-25"><a href="#cb9-25" aria-hidden="true" tabindex="-1"></a>  </span>
-<span id="cb9-26"><a href="#cb9-26" aria-hidden="true" tabindex="-1"></a>  output<span class="sc">$</span>gdrive <span class="ot">&lt;-</span> <span class="fu">renderTable</span>({</span>
-<span id="cb9-27"><a href="#cb9-27" aria-hidden="true" tabindex="-1"></a>    <span class="fu">req</span>(input<span class="sc">$</span>query)</span>
-<span id="cb9-28"><a href="#cb9-28" aria-hidden="true" tabindex="-1"></a>    </span>
-<span id="cb9-29"><a href="#cb9-29" aria-hidden="true" tabindex="-1"></a>    <span class="co"># no need for with_shiny()</span></span>
-<span id="cb9-30"><a href="#cb9-30" aria-hidden="true" tabindex="-1"></a>    <span class="fu">fileSearch</span>(input<span class="sc">$</span>query)</span>
-<span id="cb9-31"><a href="#cb9-31" aria-hidden="true" tabindex="-1"></a>    </span>
-<span id="cb9-32"><a href="#cb9-32" aria-hidden="true" tabindex="-1"></a>  })</span>
-<span id="cb9-33"><a href="#cb9-33" aria-hidden="true" tabindex="-1"></a>}</span>
-<span id="cb9-34"><a href="#cb9-34" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb9-35"><a href="#cb9-35" aria-hidden="true" tabindex="-1"></a><span class="fu">shinyApp</span>(<span class="fu">gar_shiny_ui</span>(ui, <span class="at">login_ui =</span> gar_shiny_login_ui), server)</span></code></pre></div>
+<div class="sourceCode" id="cb9"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb9-1"><a href="#cb9-1" tabindex="-1"></a><span class="fu">library</span>(shiny)</span>
+<span id="cb9-2"><a href="#cb9-2" tabindex="-1"></a><span class="fu">library</span>(googleAuthR)</span>
+<span id="cb9-3"><a href="#cb9-3" tabindex="-1"></a><span class="fu">gar_set_client</span>(<span class="at">scopes =</span> <span class="st">&quot;https://www.googleapis.com/auth/drive&quot;</span>)</span>
+<span id="cb9-4"><a href="#cb9-4" tabindex="-1"></a></span>
+<span id="cb9-5"><a href="#cb9-5" tabindex="-1"></a>fileSearch <span class="ot">&lt;-</span> <span class="cf">function</span>(query) {</span>
+<span id="cb9-6"><a href="#cb9-6" tabindex="-1"></a>  <span class="fu">gar_api_generator</span>(<span class="st">&quot;https://www.googleapis.com/drive/v3/files/&quot;</span>,</span>
+<span id="cb9-7"><a href="#cb9-7" tabindex="-1"></a>                    <span class="st">&quot;GET&quot;</span>,</span>
+<span id="cb9-8"><a href="#cb9-8" tabindex="-1"></a>                    <span class="at">pars_args=</span><span class="fu">list</span>(<span class="at">q=</span>query),</span>
+<span id="cb9-9"><a href="#cb9-9" tabindex="-1"></a>                    <span class="at">data_parse_function =</span> <span class="cf">function</span>(x) x<span class="sc">$</span>files)()</span>
+<span id="cb9-10"><a href="#cb9-10" tabindex="-1"></a>}</span>
+<span id="cb9-11"><a href="#cb9-11" tabindex="-1"></a></span>
+<span id="cb9-12"><a href="#cb9-12" tabindex="-1"></a><span class="do">## ui.R</span></span>
+<span id="cb9-13"><a href="#cb9-13" tabindex="-1"></a>ui <span class="ot">&lt;-</span> <span class="fu">fluidPage</span>(<span class="at">title =</span> <span class="st">&quot;googleAuthR Shiny Demo&quot;</span>,</span>
+<span id="cb9-14"><a href="#cb9-14" tabindex="-1"></a>                <span class="fu">textInput</span>(<span class="st">&quot;query&quot;</span>, </span>
+<span id="cb9-15"><a href="#cb9-15" tabindex="-1"></a>                          <span class="at">label =</span> <span class="st">&quot;Google Drive query&quot;</span>, </span>
+<span id="cb9-16"><a href="#cb9-16" tabindex="-1"></a>                          <span class="at">value =</span> <span class="st">&quot;mimeType != &#39;application/vnd.google-apps.folder&#39;&quot;</span>),</span>
+<span id="cb9-17"><a href="#cb9-17" tabindex="-1"></a>                <span class="fu">tableOutput</span>(<span class="st">&quot;gdrive&quot;</span>)</span>
+<span id="cb9-18"><a href="#cb9-18" tabindex="-1"></a>)</span>
+<span id="cb9-19"><a href="#cb9-19" tabindex="-1"></a></span>
+<span id="cb9-20"><a href="#cb9-20" tabindex="-1"></a><span class="do">## server.R</span></span>
+<span id="cb9-21"><a href="#cb9-21" tabindex="-1"></a>server <span class="ot">&lt;-</span> <span class="cf">function</span>(input, output, session){</span>
+<span id="cb9-22"><a href="#cb9-22" tabindex="-1"></a>  </span>
+<span id="cb9-23"><a href="#cb9-23" tabindex="-1"></a>  <span class="co"># create a non-reactive access_token as we should never get past this if not authenticated</span></span>
+<span id="cb9-24"><a href="#cb9-24" tabindex="-1"></a>  <span class="fu">gar_shiny_auth</span>(session)</span>
+<span id="cb9-25"><a href="#cb9-25" tabindex="-1"></a>  </span>
+<span id="cb9-26"><a href="#cb9-26" tabindex="-1"></a>  output<span class="sc">$</span>gdrive <span class="ot">&lt;-</span> <span class="fu">renderTable</span>({</span>
+<span id="cb9-27"><a href="#cb9-27" tabindex="-1"></a>    <span class="fu">req</span>(input<span class="sc">$</span>query)</span>
+<span id="cb9-28"><a href="#cb9-28" tabindex="-1"></a>    </span>
+<span id="cb9-29"><a href="#cb9-29" tabindex="-1"></a>    <span class="co"># no need for with_shiny()</span></span>
+<span id="cb9-30"><a href="#cb9-30" tabindex="-1"></a>    <span class="fu">fileSearch</span>(input<span class="sc">$</span>query)</span>
+<span id="cb9-31"><a href="#cb9-31" tabindex="-1"></a>    </span>
+<span id="cb9-32"><a href="#cb9-32" tabindex="-1"></a>  })</span>
+<span id="cb9-33"><a href="#cb9-33" tabindex="-1"></a>}</span>
+<span id="cb9-34"><a href="#cb9-34" tabindex="-1"></a></span>
+<span id="cb9-35"><a href="#cb9-35" tabindex="-1"></a><span class="fu">shinyApp</span>(<span class="fu">gar_shiny_ui</span>(ui, <span class="at">login_ui =</span> gar_shiny_login_ui), server)</span></code></pre></div>
 </div>
 <div id="googlesignin-module-example" class="section level3">
 <h3><code>googleSignIn</code> module example</h3>
@@ -660,42 +660,42 @@ stored in Google Drive.</p>
 your app, you just would like a login. You can then reach the user
 email, id, name or avatar to decide which content you want to show with
 durther logic within your Shiny app.</p>
-<p>You only need to set the <code>client.id</code> for this login, as no
+<p>You only need to set the <code>client_id</code> for this login, as no
 secrets are being created.</p>
-<div class="sourceCode" id="cb10"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(shiny)</span>
-<span id="cb10-2"><a href="#cb10-2" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(googleAuthR)</span>
-<span id="cb10-3"><a href="#cb10-3" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb10-4"><a href="#cb10-4" aria-hidden="true" tabindex="-1"></a><span class="fu">options</span>(<span class="at">googleAuthR.webapp.client_id =</span> <span class="st">&quot;1080525199262-qecndq7frddi66vr35brgckc1md5rgcl.apps.googleusercontent.com&quot;</span>)</span>
-<span id="cb10-5"><a href="#cb10-5" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb10-6"><a href="#cb10-6" aria-hidden="true" tabindex="-1"></a>ui <span class="ot">&lt;-</span> <span class="fu">fluidPage</span>(</span>
-<span id="cb10-7"><a href="#cb10-7" aria-hidden="true" tabindex="-1"></a>    </span>
-<span id="cb10-8"><a href="#cb10-8" aria-hidden="true" tabindex="-1"></a>    <span class="fu">titlePanel</span>(<span class="st">&quot;Sample Google Sign-In&quot;</span>),</span>
-<span id="cb10-9"><a href="#cb10-9" aria-hidden="true" tabindex="-1"></a>    </span>
-<span id="cb10-10"><a href="#cb10-10" aria-hidden="true" tabindex="-1"></a>    <span class="fu">sidebarLayout</span>(</span>
-<span id="cb10-11"><a href="#cb10-11" aria-hidden="true" tabindex="-1"></a>      <span class="fu">sidebarPanel</span>(</span>
-<span id="cb10-12"><a href="#cb10-12" aria-hidden="true" tabindex="-1"></a>        <span class="fu">googleSignInUI</span>(<span class="st">&quot;demo&quot;</span>)</span>
-<span id="cb10-13"><a href="#cb10-13" aria-hidden="true" tabindex="-1"></a>      ),</span>
-<span id="cb10-14"><a href="#cb10-14" aria-hidden="true" tabindex="-1"></a>      </span>
-<span id="cb10-15"><a href="#cb10-15" aria-hidden="true" tabindex="-1"></a>      <span class="fu">mainPanel</span>(</span>
-<span id="cb10-16"><a href="#cb10-16" aria-hidden="true" tabindex="-1"></a>        <span class="fu">with</span>(tags, <span class="fu">dl</span>(<span class="fu">dt</span>(<span class="st">&quot;Name&quot;</span>), <span class="fu">dd</span>(<span class="fu">textOutput</span>(<span class="st">&quot;g_name&quot;</span>)),</span>
-<span id="cb10-17"><a href="#cb10-17" aria-hidden="true" tabindex="-1"></a>                      <span class="fu">dt</span>(<span class="st">&quot;Email&quot;</span>), <span class="fu">dd</span>(<span class="fu">textOutput</span>(<span class="st">&quot;g_email&quot;</span>)),</span>
-<span id="cb10-18"><a href="#cb10-18" aria-hidden="true" tabindex="-1"></a>                      <span class="fu">dt</span>(<span class="st">&quot;Image&quot;</span>), <span class="fu">dd</span>(<span class="fu">uiOutput</span>(<span class="st">&quot;g_image&quot;</span>)) ))</span>
-<span id="cb10-19"><a href="#cb10-19" aria-hidden="true" tabindex="-1"></a>      )</span>
-<span id="cb10-20"><a href="#cb10-20" aria-hidden="true" tabindex="-1"></a>    )</span>
-<span id="cb10-21"><a href="#cb10-21" aria-hidden="true" tabindex="-1"></a>  )</span>
-<span id="cb10-22"><a href="#cb10-22" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb10-23"><a href="#cb10-23" aria-hidden="true" tabindex="-1"></a>server <span class="ot">&lt;-</span> <span class="cf">function</span>(input, output, session) {</span>
-<span id="cb10-24"><a href="#cb10-24" aria-hidden="true" tabindex="-1"></a>  </span>
-<span id="cb10-25"><a href="#cb10-25" aria-hidden="true" tabindex="-1"></a>  sign_ins <span class="ot">&lt;-</span> shiny<span class="sc">::</span><span class="fu">callModule</span>(googleSignIn, <span class="st">&quot;demo&quot;</span>)</span>
-<span id="cb10-26"><a href="#cb10-26" aria-hidden="true" tabindex="-1"></a>  </span>
-<span id="cb10-27"><a href="#cb10-27" aria-hidden="true" tabindex="-1"></a>  output<span class="sc">$</span>g_name <span class="ot">=</span> <span class="fu">renderText</span>({ <span class="fu">sign_ins</span>()<span class="sc">$</span>name })</span>
-<span id="cb10-28"><a href="#cb10-28" aria-hidden="true" tabindex="-1"></a>  output<span class="sc">$</span>g_email <span class="ot">=</span> <span class="fu">renderText</span>({ <span class="fu">sign_ins</span>()<span class="sc">$</span>email })</span>
-<span id="cb10-29"><a href="#cb10-29" aria-hidden="true" tabindex="-1"></a>  output<span class="sc">$</span>g_image <span class="ot">=</span> <span class="fu">renderUI</span>({ <span class="fu">img</span>(<span class="at">src=</span><span class="fu">sign_ins</span>()<span class="sc">$</span>image) })</span>
-<span id="cb10-30"><a href="#cb10-30" aria-hidden="true" tabindex="-1"></a>  </span>
-<span id="cb10-31"><a href="#cb10-31" aria-hidden="true" tabindex="-1"></a>}</span>
-<span id="cb10-32"><a href="#cb10-32" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb10-33"><a href="#cb10-33" aria-hidden="true" tabindex="-1"></a><span class="co"># Run the application </span></span>
-<span id="cb10-34"><a href="#cb10-34" aria-hidden="true" tabindex="-1"></a><span class="fu">shinyApp</span>(<span class="at">ui =</span> ui, <span class="at">server =</span> server)</span></code></pre></div>
+<div class="sourceCode" id="cb10"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb10-1"><a href="#cb10-1" tabindex="-1"></a><span class="fu">library</span>(shiny)</span>
+<span id="cb10-2"><a href="#cb10-2" tabindex="-1"></a><span class="fu">library</span>(googleAuthR)</span>
+<span id="cb10-3"><a href="#cb10-3" tabindex="-1"></a></span>
+<span id="cb10-4"><a href="#cb10-4" tabindex="-1"></a><span class="fu">options</span>(<span class="at">googleAuthR.webapp.client_id =</span> <span class="st">&quot;1080525199262-qecndq7frddi66vr35brgckc1md5rgcl.apps.googleusercontent.com&quot;</span>)</span>
+<span id="cb10-5"><a href="#cb10-5" tabindex="-1"></a></span>
+<span id="cb10-6"><a href="#cb10-6" tabindex="-1"></a>ui <span class="ot">&lt;-</span> <span class="fu">fluidPage</span>(</span>
+<span id="cb10-7"><a href="#cb10-7" tabindex="-1"></a>    </span>
+<span id="cb10-8"><a href="#cb10-8" tabindex="-1"></a>    <span class="fu">titlePanel</span>(<span class="st">&quot;Sample Google Sign-In&quot;</span>),</span>
+<span id="cb10-9"><a href="#cb10-9" tabindex="-1"></a>    </span>
+<span id="cb10-10"><a href="#cb10-10" tabindex="-1"></a>    <span class="fu">sidebarLayout</span>(</span>
+<span id="cb10-11"><a href="#cb10-11" tabindex="-1"></a>      <span class="fu">sidebarPanel</span>(</span>
+<span id="cb10-12"><a href="#cb10-12" tabindex="-1"></a>        <span class="fu">googleSignInUI</span>(<span class="st">&quot;demo&quot;</span>)</span>
+<span id="cb10-13"><a href="#cb10-13" tabindex="-1"></a>      ),</span>
+<span id="cb10-14"><a href="#cb10-14" tabindex="-1"></a>      </span>
+<span id="cb10-15"><a href="#cb10-15" tabindex="-1"></a>      <span class="fu">mainPanel</span>(</span>
+<span id="cb10-16"><a href="#cb10-16" tabindex="-1"></a>        <span class="fu">with</span>(tags, <span class="fu">dl</span>(<span class="fu">dt</span>(<span class="st">&quot;Name&quot;</span>), <span class="fu">dd</span>(<span class="fu">textOutput</span>(<span class="st">&quot;g_name&quot;</span>)),</span>
+<span id="cb10-17"><a href="#cb10-17" tabindex="-1"></a>                      <span class="fu">dt</span>(<span class="st">&quot;Email&quot;</span>), <span class="fu">dd</span>(<span class="fu">textOutput</span>(<span class="st">&quot;g_email&quot;</span>)),</span>
+<span id="cb10-18"><a href="#cb10-18" tabindex="-1"></a>                      <span class="fu">dt</span>(<span class="st">&quot;Image&quot;</span>), <span class="fu">dd</span>(<span class="fu">uiOutput</span>(<span class="st">&quot;g_image&quot;</span>)) ))</span>
+<span id="cb10-19"><a href="#cb10-19" tabindex="-1"></a>      )</span>
+<span id="cb10-20"><a href="#cb10-20" tabindex="-1"></a>    )</span>
+<span id="cb10-21"><a href="#cb10-21" tabindex="-1"></a>  )</span>
+<span id="cb10-22"><a href="#cb10-22" tabindex="-1"></a></span>
+<span id="cb10-23"><a href="#cb10-23" tabindex="-1"></a>server <span class="ot">&lt;-</span> <span class="cf">function</span>(input, output, session) {</span>
+<span id="cb10-24"><a href="#cb10-24" tabindex="-1"></a>  </span>
+<span id="cb10-25"><a href="#cb10-25" tabindex="-1"></a>  sign_ins <span class="ot">&lt;-</span> shiny<span class="sc">::</span><span class="fu">callModule</span>(googleSignIn, <span class="st">&quot;demo&quot;</span>)</span>
+<span id="cb10-26"><a href="#cb10-26" tabindex="-1"></a>  </span>
+<span id="cb10-27"><a href="#cb10-27" tabindex="-1"></a>  output<span class="sc">$</span>g_name <span class="ot">=</span> <span class="fu">renderText</span>({ <span class="fu">sign_ins</span>()<span class="sc">$</span>name })</span>
+<span id="cb10-28"><a href="#cb10-28" tabindex="-1"></a>  output<span class="sc">$</span>g_email <span class="ot">=</span> <span class="fu">renderText</span>({ <span class="fu">sign_ins</span>()<span class="sc">$</span>email })</span>
+<span id="cb10-29"><a href="#cb10-29" tabindex="-1"></a>  output<span class="sc">$</span>g_image <span class="ot">=</span> <span class="fu">renderUI</span>({ <span class="fu">img</span>(<span class="at">src=</span><span class="fu">sign_ins</span>()<span class="sc">$</span>image) })</span>
+<span id="cb10-30"><a href="#cb10-30" tabindex="-1"></a>  </span>
+<span id="cb10-31"><a href="#cb10-31" tabindex="-1"></a>}</span>
+<span id="cb10-32"><a href="#cb10-32" tabindex="-1"></a></span>
+<span id="cb10-33"><a href="#cb10-33" tabindex="-1"></a><span class="co"># Run the application </span></span>
+<span id="cb10-34"><a href="#cb10-34" tabindex="-1"></a><span class="fu">shinyApp</span>(<span class="at">ui =</span> ui, <span class="at">server =</span> server)</span></code></pre></div>
 </div>
 </div>
 </div>
@@ -714,11 +714,11 @@ scripts or R sessions, but its main intention is to be called in the
 so that you will authenticate right after you load the library via
 <code>library(yourlibrary)</code></p>
 <p>An example from <code>googleCloudStorageR</code> is shown below:</p>
-<div class="sourceCode" id="cb11"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a>.onAttach <span class="ot">&lt;-</span> <span class="cf">function</span>(libname, pkgname){</span>
-<span id="cb11-2"><a href="#cb11-2" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb11-3"><a href="#cb11-3" aria-hidden="true" tabindex="-1"></a>  googleAuthR<span class="sc">::</span><span class="fu">gar_attach_auto_auth</span>(<span class="st">&quot;https://www.googleapis.com/auth/devstorage.full_control&quot;</span>,</span>
-<span id="cb11-4"><a href="#cb11-4" aria-hidden="true" tabindex="-1"></a>                                    <span class="at">environment_var =</span> <span class="st">&quot;GCS_AUTH_FILE&quot;</span>)</span>
-<span id="cb11-5"><a href="#cb11-5" aria-hidden="true" tabindex="-1"></a>}</span></code></pre></div>
+<div class="sourceCode" id="cb11"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb11-1"><a href="#cb11-1" tabindex="-1"></a>.onAttach <span class="ot">&lt;-</span> <span class="cf">function</span>(libname, pkgname){</span>
+<span id="cb11-2"><a href="#cb11-2" tabindex="-1"></a></span>
+<span id="cb11-3"><a href="#cb11-3" tabindex="-1"></a>  googleAuthR<span class="sc">::</span><span class="fu">gar_attach_auto_auth</span>(<span class="st">&quot;https://www.googleapis.com/auth/devstorage.full_control&quot;</span>,</span>
+<span id="cb11-4"><a href="#cb11-4" tabindex="-1"></a>                                    <span class="at">environment_var =</span> <span class="st">&quot;GCS_AUTH_FILE&quot;</span>)</span>
+<span id="cb11-5"><a href="#cb11-5" tabindex="-1"></a>}</span></code></pre></div>
 <p>..which calls an environment variable set in
 <code>~/.Renvion</code>:</p>
 <pre><code>GCS_AUTH_FILE=&quot;/Users/mark/auth/my_auth_file.json&quot;</code></pre>
@@ -748,22 +748,22 @@ Kubernetes</li>
 <li>Create the service account within Kubernetes, ideally within a new
 namespace:</li>
 </ol>
-<div class="sourceCode" id="cb13"><pre class="sourceCode sh"><code class="sourceCode bash"><span id="cb13-1"><a href="#cb13-1" aria-hidden="true" tabindex="-1"></a><span class="co"># create namespace</span></span>
-<span id="cb13-2"><a href="#cb13-2" aria-hidden="true" tabindex="-1"></a><span class="ex">kubectl</span> create namespace my-namespace</span>
-<span id="cb13-3"><a href="#cb13-3" aria-hidden="true" tabindex="-1"></a><span class="co"># Create Kubernetes service account</span></span>
-<span id="cb13-4"><a href="#cb13-4" aria-hidden="true" tabindex="-1"></a><span class="ex">kubectl</span> create serviceaccount <span class="at">--namespace</span> my-namespace bq-service-account </span></code></pre></div>
+<div class="sourceCode" id="cb13"><pre class="sourceCode sh"><code class="sourceCode bash"><span id="cb13-1"><a href="#cb13-1" tabindex="-1"></a><span class="co"># create namespace</span></span>
+<span id="cb13-2"><a href="#cb13-2" tabindex="-1"></a><span class="ex">kubectl</span> create namespace my-namespace</span>
+<span id="cb13-3"><a href="#cb13-3" tabindex="-1"></a><span class="co"># Create Kubernetes service account</span></span>
+<span id="cb13-4"><a href="#cb13-4" tabindex="-1"></a><span class="ex">kubectl</span> create serviceaccount <span class="at">--namespace</span> my-namespace bq-service-account </span></code></pre></div>
 <ol start="4" style="list-style-type: decimal">
 <li>Bind that Kubernetes service account to the service account outside
 of kubernetes you created in step 1, and assign it an annotation</li>
 </ol>
-<div class="sourceCode" id="cb14"><pre class="sourceCode sh"><code class="sourceCode bash"><span id="cb14-1"><a href="#cb14-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Create IAM policy binding between k8s SA and GSA</span></span>
-<span id="cb14-2"><a href="#cb14-2" aria-hidden="true" tabindex="-1"></a><span class="ex">gcloud</span> iam service-accounts add-iam-policy-binding my-service-key@my-project.iam.gserviceaccount.com <span class="dt">\</span></span>
-<span id="cb14-3"><a href="#cb14-3" aria-hidden="true" tabindex="-1"></a>    <span class="at">--role</span> roles/iam.workloadIdentityUser <span class="dt">\</span></span>
-<span id="cb14-4"><a href="#cb14-4" aria-hidden="true" tabindex="-1"></a>    <span class="at">--member</span> <span class="st">&quot;serviceAccount:my-project.svc.id.goog[my-namespace/bq-service-account]&quot;</span></span>
-<span id="cb14-5"><a href="#cb14-5" aria-hidden="true" tabindex="-1"></a><span class="co"># Annotate k8s SA</span></span>
-<span id="cb14-6"><a href="#cb14-6" aria-hidden="true" tabindex="-1"></a><span class="ex">kubectl</span> annotate serviceaccount bq-service-account <span class="dt">\</span></span>
-<span id="cb14-7"><a href="#cb14-7" aria-hidden="true" tabindex="-1"></a>    <span class="at">--namespace</span> my-namespace <span class="dt">\</span></span>
-<span id="cb14-8"><a href="#cb14-8" aria-hidden="true" tabindex="-1"></a>    iam.gke.io/gcp-service-account=my-service-key@my-project.iam.gserviceaccount.com</span></code></pre></div>
+<div class="sourceCode" id="cb14"><pre class="sourceCode sh"><code class="sourceCode bash"><span id="cb14-1"><a href="#cb14-1" tabindex="-1"></a><span class="co"># Create IAM policy binding between k8s SA and GSA</span></span>
+<span id="cb14-2"><a href="#cb14-2" tabindex="-1"></a><span class="ex">gcloud</span> iam service-accounts add-iam-policy-binding my-service-key@my-project.iam.gserviceaccount.com <span class="dt">\</span></span>
+<span id="cb14-3"><a href="#cb14-3" tabindex="-1"></a>    <span class="at">--role</span> roles/iam.workloadIdentityUser <span class="dt">\</span></span>
+<span id="cb14-4"><a href="#cb14-4" tabindex="-1"></a>    <span class="at">--member</span> <span class="st">&quot;serviceAccount:my-project.svc.id.goog[my-namespace/bq-service-account]&quot;</span></span>
+<span id="cb14-5"><a href="#cb14-5" tabindex="-1"></a><span class="co"># Annotate k8s SA</span></span>
+<span id="cb14-6"><a href="#cb14-6" tabindex="-1"></a><span class="ex">kubectl</span> annotate serviceaccount bq-service-account <span class="dt">\</span></span>
+<span id="cb14-7"><a href="#cb14-7" tabindex="-1"></a>    <span class="at">--namespace</span> my-namespace <span class="dt">\</span></span>
+<span id="cb14-8"><a href="#cb14-8" tabindex="-1"></a>    iam.gke.io/gcp-service-account=my-service-key@my-project.iam.gserviceaccount.com</span></code></pre></div>
 <p>This key will now be available to add to pods within the cluster. For
 Airflow, you can pass them in using the
 <code>GKEPodOperator(...., namespace=&#39;my-namespace&#39;, service_account_name=&#39;bq-service-account&#39;)</code></p>
@@ -775,13 +775,13 @@ the service email that is not “default”.
 <code>gargle:::list_service_accounts()</code> was helpful in debugging
 (maybe export this?)</li>
 </ol>
-<div class="sourceCode" id="cb15"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb15-1"><a href="#cb15-1" aria-hidden="true" tabindex="-1"></a><span class="co"># code within the Docker container</span></span>
-<span id="cb15-2"><a href="#cb15-2" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(bigQueryR)</span>
-<span id="cb15-3"><a href="#cb15-3" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb15-4"><a href="#cb15-4" aria-hidden="true" tabindex="-1"></a><span class="fu">options</span>(<span class="at">gargle.gce.use_ip =</span> <span class="cn">TRUE</span>)</span>
-<span id="cb15-5"><a href="#cb15-5" aria-hidden="true" tabindex="-1"></a>googleAuthR<span class="sc">::</span><span class="fu">gar_gce_auth</span>(<span class="st">&quot;my-service-key@my-project.iam.gserviceaccount.com&quot;</span>)</span>
-<span id="cb15-6"><a href="#cb15-6" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb15-7"><a href="#cb15-7" aria-hidden="true" tabindex="-1"></a>... do authenticated stuff...</span></code></pre></div>
+<div class="sourceCode" id="cb15"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb15-1"><a href="#cb15-1" tabindex="-1"></a><span class="co"># code within the Docker container</span></span>
+<span id="cb15-2"><a href="#cb15-2" tabindex="-1"></a><span class="fu">library</span>(bigQueryR)</span>
+<span id="cb15-3"><a href="#cb15-3" tabindex="-1"></a></span>
+<span id="cb15-4"><a href="#cb15-4" tabindex="-1"></a><span class="fu">options</span>(<span class="at">gargle.gce.use_ip =</span> <span class="cn">TRUE</span>)</span>
+<span id="cb15-5"><a href="#cb15-5" tabindex="-1"></a>googleAuthR<span class="sc">::</span><span class="fu">gar_gce_auth</span>(<span class="st">&quot;my-service-key@my-project.iam.gserviceaccount.com&quot;</span>)</span>
+<span id="cb15-6"><a href="#cb15-6" tabindex="-1"></a></span>
+<span id="cb15-7"><a href="#cb15-7" tabindex="-1"></a>... do authenticated stuff...</span></code></pre></div>
 </div>
 <div id="revoking-authentication" class="section level1">
 <h1>Revoking Authentication</h1>

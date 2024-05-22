@@ -9,7 +9,7 @@
 #' @param app app as specified by \link{gar_auth_configure}
 #' @param package The name of the package authenticating
 #' @param cache Where to store authentication tokens
-#' @param use_oob Whther to use OOB browserless authetication
+#' @param use_oob Whether to use OOB browserless authentication
 #'
 #' @return an OAuth token object, specifically a
 #'   \code{\link[=Token-class]{Token2.0}}, invisibly
@@ -185,7 +185,6 @@ is.token2.0 <- function(x){
 #' Retrieve Google token from environment and configs for httr
 #'
 #' Get token if it's previously stored, else prompt user to get one.
-#' @param shiny_return_token In a shiny session, this is passed instead.
 #' @return a httr configured option for token
 #' For shiny the token is passed from reactive session
 #'
@@ -194,8 +193,9 @@ is.token2.0 <- function(x){
 #' @importFrom httr config
 get_google_token <- function() {
   
-  if(any(which(grepl("with_mock_API", as.character(sys.calls()))))){
-    myMessage("Skipping token checks as using with_mock_API", level = 3)
+  if(should_skip_token_checks()){
+    myMessage("Skipping token checks as determined from the execution context and options",
+              level = 3)
     return(NULL)
   }
   
