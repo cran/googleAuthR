@@ -1,6 +1,6 @@
 Package: googleAuthR
 Type: Package
-Version: 2.0.2
+Version: 2.0.2.1
 Title: Authenticate and Create Google APIs
 Description: Create R functions that interact with OAuth2 Google APIs 
     <https://developers.google.com/apis-explorer/> easily,
@@ -30,8 +30,8 @@ VignetteBuilder: knitr
 Encoding: UTF-8
 RoxygenNote: 7.3.1
 NeedsCompilation: no
-Packaged: 2024-05-22 15:28:45 UTC; groner
-Author: Mark Edmondson [aut] (<https://orcid.org/0000-0002-8434-3881>),
+Packaged: 2026-01-09 08:46:10 UTC; hornik
+Author: Mark Edmondson [aut] (ORCID: <https://orcid.org/0000-0002-8434-3881>),
   Erik Grönroos [cre],
   Jennifer Bryan [ctb],
   Johann deBoer [ctb],
@@ -40,4 +40,4 @@ Author: Mark Edmondson [aut] (<https://orcid.org/0000-0002-8434-3881>),
   Joe Cheng [ctb]
 Maintainer: Erik Grönroos <erik.gronroos@8-bit-sheep.com>
 Repository: CRAN
-Date/Publication: 2024-05-22 21:20:17 UTC
+Date/Publication: 2026-01-09 09:00:22 UTC
